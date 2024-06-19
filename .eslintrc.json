@@ -22,10 +22,11 @@
             }
         ],
         "no-console": "off",
-        "max-len":"off",
+        "max-len":"warn",
         "lines-between-class-members": "off",
         "import/no-unresolved": "off",
-        "import/extensions": "off"
+        "import/extensions": "off",
+        "consistent-return": "off"
     },
     "overrides": [
         {

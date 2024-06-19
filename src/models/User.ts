@@ -2,38 +2,47 @@ import { DataTypes } from "sequelize";
 import sequelize from "../config/database";
 
 enum UserRole {
+    Guest = "guest",
     Student = "student",
     Employee = "employee",
-    Guest = "guest",
+    Organization = "organization",
     Admin = "admin",
 }
+
+const nameValidation = {
+    isAlpha: {
+        msg: "Name can only contain letters"
+    },
+    notEmpty: {
+        msg: "Name cannot be empty"
+    },
+    len: {
+        args: [2, 20] as [number, number],
+        msg: "Please enter a valid name"
+    }
+};
 
 const User = sequelize.define("User", {
     firstName: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-            isAlpha: true,
-            notEmpty: true,
-            len: [2, 20],
-        },
+        validate: nameValidation
     },
     lastName: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-            isAlpha: true,
-            notEmpty: true,
-            len: [2, 20],
-        },
+        validate: nameValidation
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        unique: {
+            name: "email",
+            msg: "This email is already registered"
+        },
         validate: {
             isEmail: {
-                msg: "Invalid email format.",
+                msg: "Invalid email format",
             },
         },
     },
@@ -43,7 +52,7 @@ const User = sequelize.define("User", {
         validate: {
             len: {
                 args: [8, 25],
-                msg: "Password must be at least 8 characters long.",
+                msg: "Password must be 8-25 characters long",
             },
         },
     },
@@ -52,9 +61,15 @@ const User = sequelize.define("User", {
         defaultValue: true,
     },
     role: {
-        type: DataTypes.ENUM(UserRole.Student, UserRole.Employee, UserRole.Guest, UserRole.Admin),
+        type: DataTypes.ENUM(...Object.values(UserRole)),
         defaultValue: UserRole.Guest,
-    },
+        validate: {
+            isIn: {
+                args: [Object.values(UserRole)],
+                msg: 'Invalid role'
+            }
+        }
+    }
 });
 
 export default User;
