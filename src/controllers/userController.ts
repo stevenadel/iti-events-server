@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { UniqueConstraintError, ValidationError } from "sequelize";
-import User from "../models/User";
-import asyncWrapper from "../utils/asyncWrapper";
+import { ValidationError } from "sequelize";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
+import User from "../models/User";
+import asyncWrapper from "../utils/asyncWrapper";
 
 export async function login(req: Request, res: Response) {
     res.json({
@@ -12,25 +12,23 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function register(req: Request, res: Response, next: NextFunction) {
-    // dummy data placeholder
-    const userData = {
-        firstName: "John",
-        lastName: "Doe",
-        email: "johndoe@example.com",
-        password: "password",
-        isActive: true,
-        role: "student",
-    };
-
+    const userData = req.body;
     const [error, newUser] = await asyncWrapper(User.create(userData));
 
     if (error) {
         if (error instanceof ValidationError) {
-            return next(new DataValidationError(error));
-        }
+            const uniqueError = error.errors.find((err) => err.type === "unique violation");
+            const allowNullError = error.errors.find((err) => err.validatorKey === "notNull Violation");
 
-        if (error instanceof UniqueConstraintError) {
-            return next(new AppError("Email already exists. Please use a different email", 409));
+            if (uniqueError) {
+                return next(new AppError("Email already exists. Please use a different email.", 409));
+            }
+
+            if (allowNullError) {
+                return next(new DataValidationError(error, 400));
+            }
+
+            return next(new DataValidationError(error));
         }
 
         return next(new AppError("Database error. Please try again later."));
@@ -39,11 +37,12 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     res.status(201).json(newUser);
 }
 
-export async function getUsers(req: Request, res: Response) {
-    try {
-        const users = await User.findAll();
-        res.json(users);
-    } catch (error) {
-        res.status(500).json(error);
+export async function getUsers(req: Request, res: Response, next: NextFunction) {
+    const [error, users] = await asyncWrapper(User.findAll());
+
+    if (error) {
+        return next(new AppError("Database error. Please try again later."));
     }
+
+    res.json(users);
 }
