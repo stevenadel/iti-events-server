@@ -19,9 +19,6 @@ const BusPoint = sequelize.define("BusPoint", {
     }
 });
 
+
 export default BusPoint;
 
-BusPoint.belongsTo(BusLine, {
-    foreignKey: "busLineId",
-    as: "busLine",
-});
