@@ -1,7 +1,9 @@
 import bcrypt from "bcrypt";
-import { DataTypes, Model, Optional } from "sequelize";
-import sequelize from "../config/database";
+import {
+    Document, Schema, Model, UpdateQuery, model,
+} from "mongoose";
 import AppError from "../errors/AppError";
+import asyncWrapper from "../utils/asyncWrapper";
 import { UserAttributes } from "../types/User";
 
 const SALT_ROUNDS = 10;
@@ -14,111 +16,107 @@ export enum UserRole {
     Admin = "admin",
 }
 
-const nameValidation = {
-    isAlpha: {
-        msg: "Name can only contain letters",
-    },
-    notEmpty: {
-        msg: "Name cannot be empty",
-    },
-    len: {
-        args: [2, 20] as [number, number],
-        msg: "Please enter a valid name",
-    },
-};
-
-interface UserCreationAttributes extends Optional<UserAttributes, "isActive" | "role"> { }
-
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-    declare firstName: string;
-    declare lastName: string;
-    declare email: string;
-    declare password: string;
-    declare isActive: boolean;
-    declare role: UserRole;
-
-    public async generateHash(password: string): Promise<void> {
-        try {
-            const hash = await bcrypt.hash(password, SALT_ROUNDS);
-            this.setDataValue("password", hash);
-        } catch (error) {
-            throw new AppError("Error saving password");
-        }
-    }
-
-    public async validPassword(plainPassword: string): Promise<boolean> {
-        try {
-            const hash = this.getDataValue("password");
-            return await bcrypt.compare(plainPassword, hash);
-        } catch (error) {
-            throw new AppError("Error validating password");
-        }
-    }
+interface UserDocument extends Document, UserAttributes {
+    verifyPassword(plainPassword: string): Promise<boolean>;
 }
 
-User.init(
+const userSchema = new Schema<UserDocument>(
     {
         firstName: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: nameValidation,
+            type: String,
+            required: [true, "First name is required"],
+            match: [/^[A-Za-z]+$/, "Name can only contain letters"],
+            trim: true,
+            minlength: [2, "First name must be at least 2 characters long"],
+            maxlength: [20, "First name must be at most 20 characters long"],
         },
         lastName: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: nameValidation,
+            type: String,
+            required: [true, "Last name is required"],
+            match: [/^[A-Za-z]+$/, "Name can only contain letters"],
+            trim: true,
+            minlength: [2, "Last name must be at least 2 characters long"],
+            maxlength: [20, "Last name must be at most 20 characters long"],
         },
         email: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: {
-                name: "email",
-                msg: "This email is already registered",
-            },
+            type: String,
+            required: [true, "Email is required"],
+            unique: true,
+            trim: true,
             validate: {
-                isEmail: {
-                    msg: "Invalid email format",
-                },
+                validator: (email: string) => /\S+@\S+\.\S+/.test(email),
+                message: "Please enter a valid email",
             },
         },
         password: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                len: {
-                    args: [8, 25],
-                    msg: "Password must be 8-25 characters long",
-                },
-            },
+            type: String,
+            required: [true, "Password is required"],
+            minlength: [8, "Password must be at least 8 characters long"],
+            maxlength: [25, "Password must be at most 25 characters long"],
         },
         isActive: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
+            type: Boolean,
+            default: true,
         },
         role: {
-            type: DataTypes.ENUM(...Object.values(UserRole)),
-            defaultValue: UserRole.Guest,
-            validate: {
-                isIn: {
-                    args: [Object.values(UserRole)],
-                    msg: "Invalid role",
-                },
-            },
+            type: String,
+            enum: Object.values(UserRole),
+            default: UserRole.Guest,
         },
     },
     {
-        sequelize,
-        hooks: {
-            beforeCreate: async (user) => {
-                await user.generateHash(user.password);
-            },
-            beforeUpdate: async (user) => {
-                if (user.changed("password")) {
-                    await user.generateHash(user.password);
-                }
-            },
-        },
+        timestamps: true,
     },
 );
+
+userSchema.set("toJSON", {
+    transform(doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        delete ret.password;
+        delete ret.isActive;
+    },
+});
+
+userSchema.methods.verifyPassword = async function (this: UserDocument, plainPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, this.password);
+};
+
+userSchema.pre<UserDocument>("save", async function (next) {
+    if (!this.isModified("password")) {
+        return next();
+    }
+
+    const [error, hashedPassword] = await asyncWrapper(bcrypt.hash(this.password, SALT_ROUNDS));
+
+    if (error || !hashedPassword) {
+        return next(new AppError("Error saving password"));
+    }
+
+    this.password = hashedPassword;
+    next();
+});
+
+userSchema.pre("findOneAndUpdate", async function (next) {
+    const update = this.getUpdate() as UpdateQuery<UserDocument>;
+
+    this.setOptions({ runValidators: true });
+
+    if (!update.password) {
+        return next();
+    }
+
+    const [error, hashedPassword] = await asyncWrapper(bcrypt.hash(update.password, SALT_ROUNDS));
+
+    if (error || !hashedPassword) {
+        return next(new AppError("Error saving password"));
+    }
+
+    update.password = hashedPassword;
+    next();
+});
+
+const User: Model<UserDocument> = model<UserDocument>("User", userSchema);
 
 export default User;

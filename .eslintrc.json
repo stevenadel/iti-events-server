@@ -21,8 +21,10 @@
                 "avoidEscape": true
             }
         ],
+        "max-len": "warn",
+        "no-unused-vars": "warn",
         "no-console": "off",
-        "max-len":"warn",
+        "no-param-reassign": "off",
         "lines-between-class-members": "off",
         "import/no-unresolved": "off",
         "import/extensions": "off",
