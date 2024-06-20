@@ -18,6 +18,11 @@ const BusLineSchema = new Schema({
         min: 5
     },
     busPoints: [{
+        name: {
+            type: String,
+            required: true,
+            trim: true
+        },
         latitude: {
             type: Number,
             required: true
