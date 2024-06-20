@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import BusLine from "../models/BusLine";
 import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
-import DataValidationError from "../errors/DataValidationError";
 
 export async function createBusLine(req: Request, res: Response, next: NextFunction) {
     const { name, isActive, capacity } = req.body;
@@ -55,22 +54,18 @@ export async function getBusLineById(req: Request, res: Response, next: NextFunc
 
 export async function updateBusLine(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    const { name, isActive, capacity } = req.body;
+    const { name, isActive, capacity , driverID } = req.body;
 
 
     const [error, updatedBusLine] = await asyncWrapper(BusLine.findByIdAndUpdate(
         id,
         {
-            name, isActive, capacity
+            name, isActive, capacity, driverID
         },
         { new: true }
     ))
 
     if (error) {
-        // if (error instanceof ValidationError) {
-        //     return next(new DataValidationError(error));
-        // }
-
         return next(new AppError("Database error. Please try again later."));
     }
 
