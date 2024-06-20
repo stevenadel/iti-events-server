@@ -26,7 +26,11 @@ const BusLineSchema = new Schema({
             type: Number,
             required: true
         },
-        time: {
+        pickupTime: {
+            type: Date,
+            required: true
+        },
+        departureTime: {
             type: Date,
             required: true
         }

@@ -1,18 +1,38 @@
 import express from "express";
-import connectDB from "./models";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import helmet from "helmet";
 import routes from "./routes";
 import errorHandler from "./middlewares/errorHandler";
 
+dotenv.config();
+
 const app = express();
-const port = process.env.PORT || 3000;
 
+app.use(helmet());
 app.use(express.json());
-
 app.use(routes);
-
 app.use(errorHandler);
 
-app.listen(port, async () => {
-    await connectDB();
-    console.log(`Server is running on port ${port}`);
+// For debugging, remove in production
+process.on("uncaughtException", (err) => {
+    console.log("Uncaught exception occurred:\n", err);
 });
+
+const {
+    PORT, DB_USERNAME, DB_PASSWORD, CLUSTER_URL, DB_NAME,
+} = process.env;
+// const uri = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@${CLUSTER_URL}/${DB_NAME}`;
+const uri = `mongodb+srv://iti-events-user:nqIt8NBocg9xhyHE@cluster0.fv61oow.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+
+mongoose
+    .connect(uri)
+    .then(() => {
+        console.log("Connected to MongoDB Atlas");
+        app.listen(PORT, () => {
+            console.log(`Server is running on port http://localhost:${PORT}/`);
+        });
+    })
+    .catch((err) => {
+        console.error("Error connecting to MongoDB Atlas:", err);
+    });

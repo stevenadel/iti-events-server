@@ -6,9 +6,9 @@ interface ErrorItem {
 }
 
 class DataValidationError extends AppError {
-    constructor(error: ValidationError) {
+    constructor(error: ValidationError, status = 422) {
         const messages = error.errors.map((e: ErrorItem) => e.message).join(" - ");
-        super(messages, 422);
+        super(messages, status);
     }
 }
 
