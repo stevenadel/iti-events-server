@@ -1,108 +1,131 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import EventCategory from "../models/EventCategory";
 import asyncWrapper from "../utils/asyncWrapper";
+import ValidationError from "../errors/ValidationError";
+import NotFoundError from "../errors/NotFoundError";
+import isObjectIdValid from "../utils/mongoose";
 
-export const createCategory = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { name } = req.body;
+export const createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { name } = req.body;
 
-        const newCategory = new EventCategory({ name });
-        await newCategory.save();
+    const [findErr, _] = await asyncWrapper(EventCategory.findOne({ name }));
 
-        res.status(201).json({ category: newCategory });
-    } catch (err: any) {
-        if (err.name === "MongoServerError" && (err.code === 11000 || err.code === 11001)
-        ) {
-            res.status(400).json({
-                message: "Category name already exist",
-            });
-            return;
-        }
-        res.status(500).json({ message: "Server error", err });
+    if (findErr) {
+        next(new ValidationError("Another category with the same name exist"));
+        return;
     }
+
+    const newCategory = new EventCategory({ name });
+    const [createErr] = await asyncWrapper(newCategory.save());
+
+    if (createErr) {
+        next(createErr);
+        return;
+    }
+
+    res.status(201).json({ category: newCategory });
 };
 
-export const getAllCategories = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const categories = await EventCategory.find();
-        res.json({ categories });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+export const getAllCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const [err, categories] = await asyncWrapper(EventCategory.find());
+    if (err) {
+        next(err);
+        return;
     }
+
+    res.json({ categories });
 };
 
-export const getCategoryById = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const categoryId = req.params.id;
-
-        const category = await EventCategory.findById(categoryId);
-
-        if (!category) {
-            res.status(404).json({ message: "Category not found" });
-            return;
-        }
-
-        res.status(200).json({ category });
-    } catch (err: any) {
-        if (err.kind === "ObjectId") {
-            res.status(404).json({ message: "Category not found" });
-            return;
-        }
-        res.status(500).json({ message: "Server error", err });
+export const getCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const categoryId = req.params.id;
+    if (!isObjectIdValid(categoryId)) {
+        next(new ValidationError("Invalid id format"));
+        return;
     }
+
+    const [err, category] = await asyncWrapper(EventCategory.findById(categoryId));
+
+    if (err) {
+        next(err);
+        return;
+    }
+
+    if (!category) {
+        next(new NotFoundError(`Category with id [${categoryId}] doesn't exist`));
+        return;
+    }
+
+    res.json({ category });
 };
 
-export const updateCategoryById = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { name } = req.body;
-        const categoryId = req.params.id;
+export const updateCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { name } = req.body;
+    const categoryId = req.params.id;
 
-        const [findErr, category] = await asyncWrapper(EventCategory.findById(categoryId));
-
-        if (findErr || !category) {
-            res.status(400).json({ message: "Category not found" });
-            return;
-        }
-
-        const [uniquenessErr, categoryWithSameName] = await asyncWrapper(EventCategory.findOne({
-            name, _id: { $ne: categoryId },
-        }));
-
-        if (categoryWithSameName || uniquenessErr) {
-            res.status(400).json({ message: "Category name already exists" });
-            return;
-        }
-
-        const updatedCategory = await EventCategory.findByIdAndUpdate(
-            categoryId,
-            { name },
-            { new: true, runValidators: true },
-        );
-
-        res.status(200).json(updatedCategory);
-    } catch (err:any) {
-        res.status(500).json({ message: "Server error", err });
+    if (!isObjectIdValid(categoryId)) {
+        next(new ValidationError("Invalid id format"));
+        return;
     }
+
+    const [findErr, category] = await asyncWrapper(EventCategory.findById(categoryId));
+
+    if (findErr) {
+        next(findErr);
+        return;
+    }
+
+    if (!category) {
+        next(new NotFoundError(`Category with id [${categoryId}] doesn't exist`));
+        return;
+    }
+
+    const [uniquenessErr, categoryWithSameName] = await asyncWrapper(EventCategory.findOne({
+        name, _id: { $ne: categoryId },
+    }));
+
+    if (uniquenessErr) {
+        next(uniquenessErr);
+        return;
+    }
+
+    if (categoryWithSameName) {
+        next(new ValidationError("Category name already exists"));
+        return;
+    }
+
+    const [updateErr, updatedCategory] = await asyncWrapper(EventCategory.findByIdAndUpdate(
+        categoryId,
+        { name },
+        { new: true, runValidators: true },
+    ));
+
+    if (updateErr) {
+        next(updateErr);
+        return;
+    }
+
+    res.status(201).json({ category: updatedCategory });
 };
 
-export const deleteCategoryById = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const categoryId = req.params.id;
+export const deleteCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const categoryId = req.params.id;
 
-        const category = await EventCategory.findByIdAndDelete(categoryId);
-
-        if (!category) {
-            res.status(404).json({ message: "Category not found" });
-            return;
-        }
-
-        res.status(200).json({ message: "Category deleted successfully" });
-    } catch (err: any) {
-        if (err.kind === "ObjectId") {
-            res.status(404).json({ message: "Category not found" });
-            return;
-        }
-
-        res.status(500).json({ message: "Server error", err });
+    if (!isObjectIdValid(categoryId)) {
+        next(new ValidationError("Invalid id format"));
+        return;
     }
+
+    const [err, category] = await asyncWrapper(EventCategory.findByIdAndDelete(categoryId));
+
+    if (err) {
+        next(err);
+        return;
+    }
+
+    if (!category) {
+        next(new NotFoundError(`Category with id [${categoryId}] doesn't exists`));
+        return;
+    }
+
+    res.status(204).json({ message: "Category deleted successfully" });
 };
