@@ -1,6 +1,6 @@
 # ITI Events Management System
 
-Events management system server following RESTful API architecture using Express.js, Sequelize ORM, and written in TypeScript.  
+Events management system server following RESTful API architecture using Express.js, Mongoose ODM, and written in TypeScript.  
 
 ## Getting Started
 
