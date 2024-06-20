@@ -1,18 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "../errors/AppError";
-import DataValidationError from "../errors/DataValidationError";
+import Errors from "../types/Errors";
 
 const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     let status = 500;
     let message = "Internal Server Error";
-    let errors: any | undefined;
+    let errors: Errors | undefined;
 
     if (err instanceof AppError) {
         status = err.status;
         message = err.message;
-    }
-
-    if (err instanceof DataValidationError) {
         errors = err.errors;
     }
 
@@ -21,7 +18,7 @@ const errorHandler = (err: Error, req: Request, res: Response, next: NextFunctio
 
     res.status(status).json({
         message,
-        errors
+        errors,
     });
 };
 
