@@ -3,11 +3,11 @@ import { addBusPoint, removeBusPoint, updateBusPoint, getAllBusPoints } from "..
 
 const router = express.Router();
 
-router.get("/", getAllBusPoints);
-router.post("/", addBusPoint);
+router.get("/:busLineId", getAllBusPoints);
+router.post("/:busLineId", addBusPoint);
 
-router.put("/:id", updateBusPoint);
-router.delete("/:id", removeBusPoint);
+router.put("/:busLineId/:busPointId", updateBusPoint);
+router.delete("/:busLineId/:busPointId", removeBusPoint);
 
 
 export default router;
