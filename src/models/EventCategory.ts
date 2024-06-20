@@ -9,6 +9,7 @@ const categorySchema = new Schema<IEventCategory>(
         name: {
             type: String,
             required: true,
+            unique: true,
         },
     },
     {
