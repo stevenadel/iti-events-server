@@ -22,7 +22,8 @@ process.on("uncaughtException", (err) => {
 const {
     PORT, DB_USERNAME, DB_PASSWORD, CLUSTER_URL, DB_NAME,
 } = process.env;
-const uri = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@${CLUSTER_URL}/${DB_NAME}`;
+// const uri = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@${CLUSTER_URL}/${DB_NAME}`;
+const uri = `mongodb+srv://iti-events-user:nqIt8NBocg9xhyHE@cluster0.fv61oow.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 
 mongoose
     .connect(uri)
