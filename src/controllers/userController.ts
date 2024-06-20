@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Request, Response, NextFunction } from "express";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
@@ -11,37 +12,36 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function register(req: Request, res: Response, next: NextFunction) {
-    // const userData = req.body;
-    // const [error, newUser] = await asyncWrapper(User.create(userData));
+    const userData = req.body;
+    const [error, newUser] = await asyncWrapper(User.create(userData));
 
-    // if (error) {
-    //     if (error instanceof ValidationError) {
-    //         const uniqueError = error.errors.find((err) => err.type === "unique violation");
-    //         const allowNullError = error.errors.find((err) => err.validatorKey === "notNull Violation");
+    if (error) {
+        if (error instanceof mongoose.Error.ValidationError) {
+            const requiredError = Object.values(error.errors).find((err) => err.kind === 'required');
+            
+            if (requiredError) {
+                return next(new DataValidationError(error, 400));
+            }
 
-    //         if (uniqueError) {
-    //             return next(new AppError("Email already exists. Please use a different email.", 409));
-    //         }
+            return next(new DataValidationError(error));
+        }
 
-    //         if (allowNullError) {
-    //             return next(new DataValidationError(error, 400));
-    //         }
+        if ((error as any).code === 11000) {
+            return next(new AppError("Email already exists. Please use a different email.", 409));
+        }
 
-    //         return next(new DataValidationError(error));
-    //     }
+        return next(new AppError("Database error. Please try again later."));
+    }
 
-    //     return next(new AppError("Database error. Please try again later."));
-    // }
-
-    // res.status(201).json(newUser);
+    res.status(201).json(newUser);
 }
 
 export async function getUsers(req: Request, res: Response, next: NextFunction) {
-    // const [error, users] = await asyncWrapper(User.findAll());
+    const [error, users] = await asyncWrapper(User.find());
 
-    // if (error) {
-    //     return next(new AppError("Database error. Please try again later."));
-    // }
+    if (error) {
+        return next(new AppError("Database error. Please try again later."));
+    }
 
-    // res.json(users);
+    res.json(users);
 }
