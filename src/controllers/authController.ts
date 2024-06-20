@@ -3,10 +3,11 @@ import jwt, { VerifyErrors } from "jsonwebtoken";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { Request, Response, NextFunction } from "express";
+import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
 import User from "../models/User";
-import asyncWrapper from "../utils/asyncWrapper";
+import { UserAttributes, UserToken } from "../types/User";
 
 dotenv.config();
 
@@ -18,9 +19,13 @@ if (!JWT_ACCESS_SECRET || !JWT_REFRESH_SECRET) {
     throw new Error("JWT secrets are not defined in environment variables.");
 }
 
-const generateAccessToken = (user: any) => jwt.sign({ id: user.id }, JWT_ACCESS_SECRET, { expiresIn: JWT_ACCESS_EXPIRATION });
+const generateAccessToken = (user: UserToken) => jwt.sign({
+    id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role,
+}, JWT_ACCESS_SECRET, { expiresIn: JWT_ACCESS_EXPIRATION });
 
-const generateRefreshToken = (user: any) => jwt.sign({ id: user.id }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRATION });
+const generateRefreshToken = (user: UserToken) => jwt.sign({
+    id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role,
+}, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRATION });
 
 export async function login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
@@ -45,8 +50,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         return next(new AppError("Invalid email or password.", 401));
     }
 
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    const accessToken = generateAccessToken(user as UserToken);
+    const refreshToken = generateRefreshToken(user as UserToken);
 
     res.json({
         accessToken,
@@ -113,6 +118,6 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
         return next(new AppError("User not found.", 404));
     }
 
-    const newAccessToken = generateAccessToken(user);
+    const newAccessToken = generateAccessToken(user as UserToken);
     res.json({ accessToken: newAccessToken });
 }
