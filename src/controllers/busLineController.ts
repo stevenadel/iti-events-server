@@ -16,14 +16,6 @@ export async function createBusLine(req: Request, res: Response, next: NextFunct
     const [error, newBusLine] = await asyncWrapper(BusLine.create(busLineData));
 
     if (error) {
-        // if (error instanceof ValidationError) {
-        //     return next(new DataValidationError(error));
-        // }
-
-        //     if (error instanceof UniqueConstraintError) {
-        //         return next(new AppError("Bus line already exists. Please use a different name", 409));
-        //     }
-
         return next(new AppError("Database error. Please try again later."));
     }
 

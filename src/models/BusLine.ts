@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
+
+
 const BusLineSchema = new Schema({
     name: {
         type: String,
