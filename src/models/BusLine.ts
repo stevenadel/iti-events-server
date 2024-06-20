@@ -1,32 +1,37 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../config/database";
-import BusPoint from "./BusPoint";
+import mongoose from 'mongoose';
 
-const BusLine = sequelize.define("BusLine", {
+const { Schema } = mongoose;
+
+const BusLineSchema = new Schema({
     name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-            notEmpty: true,
-        },
+        type: String,
+        required: true,
+        trim: true
     },
     isActive: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
+        type: Boolean,
+        default: true
     },
     capacity: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-            isInt: true,
-            min: 1,
-        },
+        type: Number,
+        required: true,
+        min: 5
     },
+    busPoints: [{
+        latitude: {
+            type: Number,
+            required: true
+        },
+        longitude: {
+            type: Number,
+            required: true
+        },
+        time: {
+            type: Date,
+            required: true
+        }
+    }]
 });
 
-BusLine.hasMany(BusPoint, {
-    foreignKey: "busLineId",
-    as: "points",
-});
-
+const BusLine = mongoose.model('BusLine', BusLineSchema);
 export default BusLine;
