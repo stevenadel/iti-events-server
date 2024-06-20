@@ -6,7 +6,7 @@ const driverSchema = new mongoose.Schema({
     required: true
   },
   phone_number: {
-    type: String,
+    type: Number,
     required: true
   }
 });

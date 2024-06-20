@@ -5,6 +5,10 @@ const { Schema } = mongoose;
 
 
 const BusLineSchema = new Schema({
+    driverID: {
+        type: Schema.Types.ObjectId,
+        ref: 'Driver'
+    },
     name: {
         type: String,
         required: true,
