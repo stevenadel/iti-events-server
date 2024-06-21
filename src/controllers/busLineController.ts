@@ -22,12 +22,12 @@ export async function createBusLine(req: Request, res: Response, next: NextFunct
 }
 
 
-export async function getBusLines(req: Request, res: Response) {
-    const [error, busLines] = await asyncWrapper(BusLine.find());
+export async function getBusLines(req: Request, res: Response, next: NextFunction) {
+    const [error, busLines] = await asyncWrapper(BusLine.find().populate('driverID'));
 
 
     if (error) {
-        res.status(500).json(error);
+        return next(new AppError("Database error. Please try again later."));
     }
 
     res.status(200).json(busLines);
@@ -37,7 +37,7 @@ export async function getBusLines(req: Request, res: Response) {
 export async function getBusLineById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
 
-    const [error, busLine] = await asyncWrapper(BusLine.findById(id));
+    const [error, busLine] = await asyncWrapper(BusLine.findById(id).populate('driverID'));
 
     if (error) {
         return next(new AppError("Database error. Please try again later."));
