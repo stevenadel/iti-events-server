@@ -34,3 +34,33 @@ const categorySchema = new Schema<IEventCategory>(
 const EventCategory = model<IEventCategory>("Category", categorySchema);
 
 export default EventCategory;
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     EventCategory:
+ *       type: object
+ *       required:
+ *         - name
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated ID of the category
+ *         name:
+ *           type: string
+ *           description: The name of the category
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date the category was created
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date the category was last updated
+ *       example:
+ *         id: d5fE_asz
+ *         name: Tech
+ *         createdAt: 2021-05-14T10:00:00Z
+ *         updatedAt: 2021-05-14T10:00:00Z
+ */

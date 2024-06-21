@@ -8,3 +8,25 @@ class ValidationError extends AppError {
 }
 
 export default ValidationError;
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ValidationError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           example: 'Validation failed'
+ *         errors:
+ *           type: object
+ *           additionalProperties:
+ *             type: string
+ *             example: 'Field is required'
+ *       example:
+ *         message: 'Validation failed'
+ *         errors:
+ *           fieldName: 'Field is required'
+ *           anotherField: 'Must be a valid email'
+ */
