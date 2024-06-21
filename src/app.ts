@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import cors from "cors";
 import routes from "./routes";
 import errorHandler from "./middlewares/errorHandler";
 import options from "./utils/swagger";
@@ -12,8 +13,13 @@ dotenv.config();
 
 const app = express();
 const specs = swaggerJSDoc(options);
+const corsOptions = {
+    origin: "*",
+    optionSuccessStatus: 200,
+};
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use(cors(corsOptions));
 app.use(helmet());
 app.use(express.json());
 app.use(routes);
