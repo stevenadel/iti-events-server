@@ -7,7 +7,7 @@ import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
 import User from "../models/User";
-import { UserAttributes, UserToken } from "../types/User";
+import { UserToken } from "../types/User";
 
 dotenv.config();
 
@@ -19,13 +19,19 @@ if (!JWT_ACCESS_SECRET || !JWT_REFRESH_SECRET) {
     throw new Error("JWT secrets are not defined in environment variables.");
 }
 
-const generateAccessToken = (user: UserToken) => jwt.sign({
-    id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role,
-}, JWT_ACCESS_SECRET, { expiresIn: JWT_ACCESS_EXPIRATION });
+function getTokenPayload(user: UserToken) {
+    return {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+    };
+}
 
-const generateRefreshToken = (user: UserToken) => jwt.sign({
-    id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role,
-}, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRATION });
+const generateAccessToken = (user: UserToken) => jwt.sign(getTokenPayload(user), JWT_ACCESS_SECRET, { expiresIn: JWT_ACCESS_EXPIRATION });
+
+const generateRefreshToken = (user: UserToken) => jwt.sign(getTokenPayload(user), JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRATION });
 
 export async function login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
