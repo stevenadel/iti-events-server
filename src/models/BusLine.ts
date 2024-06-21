@@ -1,62 +1,58 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const { Schema } = mongoose;
-
-
 
 const BusLineSchema = new Schema({
     driverID: {
         type: Schema.Types.ObjectId,
-        ref: 'Driver'
+        ref: "Driver",
     },
-    busPhoto: {
+    busCode: {
         type: String,
+        required: true,
     },
     name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
     },
     isActive: {
         type: Boolean,
-        default: true
+        default: true,
     },
     capacity: {
         type: Number,
         required: true,
-        min: 5
+        min: 5,
     },
     departureTime: {
         type: Date,
-        required: true
+        required: true,
     },
     arrivalTime: {
         type: Date,
-        required: true
+        required: true,
     },
     busPoints: [{
         name: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
         },
         latitude: {
             type: Number,
-            required: true
+            required: true,
         },
         longitude: {
             type: Number,
-            required: true
+            required: true,
         },
         pickupTime: {
             type: Date,
-            required: true
-        }
-    }]
+            required: true,
+        },
+    }],
 });
 
-const BusLine = mongoose.model('BusLine', BusLineSchema);
+const BusLine = mongoose.model("BusLine", BusLineSchema);
 export default BusLine;
-
-
-//userBus Schema
