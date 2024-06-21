@@ -12,7 +12,7 @@ const options = {
             },
         ],
     },
-    apis: ["./src/routes/*.ts", "./src/models/*.ts"],
+    apis: ["./src/routes/*.ts", "./src/models/*.ts", "./src/errors/*.ts"],
 };
 
 export default options;
