@@ -120,3 +120,74 @@ userSchema.pre("findOneAndUpdate", async function (next) {
 const User: Model<UserDocument> = model<UserDocument>("User", userSchema);
 
 export default User;
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - firstName
+ *         - lastName
+ *         - email
+ *         - password
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated ID of the user
+ *         firstName:
+ *           type: string
+ *           description: The first name of the user
+ *           example: John
+ *           minLength: 2
+ *           maxLength: 20
+ *           pattern: "^[A-Za-z]+$"
+ *         lastName:
+ *           type: string
+ *           description: The last name of the user
+ *           example: Doe
+ *           minLength: 2
+ *           maxLength: 20
+ *           pattern: "^[A-Za-z]+$"
+ *         email:
+ *           type: string
+ *           description: The email of the user
+ *           example: john.doe@example.com
+ *         password:
+ *           type: string
+ *           description: The password of the user
+ *           example: Passw0rd!
+ *           minLength: 8
+ *           maxLength: 25
+ *         isActive:
+ *           type: boolean
+ *           description: Whether the user is active
+ *           example: true
+ *         role:
+ *           type: string
+ *           description: The role of the user
+ *           enum:
+ *             - guest
+ *             - student
+ *             - employee
+ *             - organization
+ *             - admin
+ *           example: guest
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date the user was created
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date the user was last updated
+ *       example:
+ *         id: 60d0fe4f5311236168a109ca
+ *         firstName: John
+ *         lastName: Doe
+ *         email: john.doe@example.com
+ *         role: guest
+ *         createdAt: 2021-06-22T12:00:00Z
+ *         updatedAt: 2021-06-22T12:00:00Z
+ */
