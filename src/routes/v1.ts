@@ -1,4 +1,5 @@
 import { Router } from "express";
+import authRouter from "./auth";
 import userRouter from "./users";
 import eventCategoryRouter from "./eventCategory";
 // import driverRouter from "./drivers";
@@ -8,6 +9,7 @@ import eventCategoryRouter from "./eventCategory";
 
 const router = Router();
 
+router.use("/auth", authRouter);
 router.use("/users", userRouter);
 router.use("/event-categories", eventCategoryRouter);
 // router.use("/drivers", driverRouter);
