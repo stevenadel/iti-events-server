@@ -2,13 +2,18 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import helmet from "helmet";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 import routes from "./routes";
 import errorHandler from "./middlewares/errorHandler";
+import options from "./utils/swagger";
 
 dotenv.config();
 
 const app = express();
+const specs = swaggerJSDoc(options);
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(helmet());
 app.use(express.json());
 app.use(routes);
@@ -23,7 +28,6 @@ const {
     PORT, DB_USERNAME, DB_PASSWORD, CLUSTER_URL, DB_NAME,
 } = process.env;
 const uri = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@${CLUSTER_URL}/${DB_NAME}`;
-
 
 mongoose
     .connect(uri)
