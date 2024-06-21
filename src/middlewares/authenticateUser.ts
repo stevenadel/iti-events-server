@@ -5,11 +5,7 @@ import asyncWrapper from "../utils/asyncWrapper";
 import User from "../models/User";
 import { UserToken } from "../types/User";
 
-// interface JwtPayload {
-//     id: string;
-// }
-
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
     user?: typeof User.prototype;
 }
 
