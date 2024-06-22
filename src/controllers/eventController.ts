@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from "express";
+import { isValidObjectId } from "mongoose";
 import asyncWrapper from "../utils/asyncWrapper";
 import Event from "../models/Event";
 import EventCategory from "../models/EventCategory";
 import ValidationError from "../errors/ValidationError";
 import isObjectIdValid from "../utils/mongoose";
+import NotFoundError from "../errors/NotFoundError";
 
 export const createEvent = async (req: Request, res: Response, next: NextFunction) => {
     const { category: categoryId } = req.body;
@@ -87,4 +89,27 @@ export const getFinishedEvents = async (req: Request, res: Response, next: NextF
     }
 
     res.json({ events });
+};
+
+export const getEventById = async (req: Request, res: Response, next: NextFunction) => {
+    const eventId = req.params.id;
+
+    if (!isValidObjectId(eventId)) {
+        next(new ValidationError("Invalid event id format"));
+        return;
+    }
+
+    const [err, event] = await asyncWrapper(Event.findById(eventId).populate("category"));
+
+    if (err) {
+        next(err);
+        return;
+    }
+
+    if (!event) {
+        next(new NotFoundError("Event doesn't exist"));
+        return;
+    }
+
+    res.json({ event });
 };
