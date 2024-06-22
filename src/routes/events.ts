@@ -1,6 +1,6 @@
 import Router from "express";
 import {
-    createEvent, getAllEvents, getCurrentEvents, getFinishedEvents,
+    createEvent, getAllEvents, getCurrentEvents, getEventById, getFinishedEvents,
 } from "../controllers/eventController";
 import validateCreateEventReq from "../middlewares/validateCreateEventReq";
 
@@ -158,4 +158,47 @@ router.get("/current", getCurrentEvents);
  */
 router.get("/finished", getFinishedEvents);
 
+/**
+ * @swagger
+ * /events/{id}:
+ *   get:
+ *     summary: Get an event by ID
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Event ID
+ *     responses:
+ *       200:
+ *         description: Return Event found in DB
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 event:
+ *                   $ref: '#/components/schemas/EventPopulated'
+ *       400:
+ *         description: Invalid Id Format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid event id format"
+ *               errors: {}
+ *       404:
+ *         description: Event Not Found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "Event not found"
+ *               errors: {}
+ */
+router.get("/:id", getEventById);
 export default router;
