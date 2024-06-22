@@ -3,7 +3,7 @@ async function asyncWrapper<T>(promise: Promise<T>): Promise<[undefined, T] | [E
         const data = await promise;
         return [undefined, data];
     } catch (error) {
-        return [error instanceof Error ? error : new Error(String(error)), undefined];
+        return [error as Error, undefined];
     }
 }
 
