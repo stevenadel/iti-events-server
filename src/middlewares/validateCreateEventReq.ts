@@ -70,7 +70,7 @@ function validateCreateEventReq(req: Request, res: Response, next: NextFunction)
                 "number.positive": "duration must be a positive number",
                 "number.integer": "duration must be an integer",
             }),
-        registrationClose: Joi.boolean()
+        registrationClosed: Joi.boolean()
             .strict()
             .messages({
                 "boolean.base": "registrationClosed must be true/false",
