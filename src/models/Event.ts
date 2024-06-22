@@ -66,6 +66,9 @@ const eventSchema = new Schema<IEvent>(
             type: Schema.Types.ObjectId,
             ref: "Category",
         },
+        endDate: {
+            type: Date,
+        },
     },
     {
         timestamps: true,
@@ -86,10 +89,10 @@ const eventSchema = new Schema<IEvent>(
     },
 );
 
-eventSchema.virtual("endDate").get(function (this: IEvent) {
-    const endDate = new Date(this.startDate);
-    endDate.setHours(endDate.getHours() + this.duration); // hours is unit of measurement
-    return endDate;
+eventSchema.pre("save", function (next) {
+    this.endDate = new Date(this.startDate);
+    this.endDate.setHours(this.endDate.getHours() + this.duration);
+    next();
 });
 
 const Event = model<IEvent>("Event", eventSchema);
@@ -152,18 +155,12 @@ export default Event;
  *           type: string
  *           format: date-time
  *           description: The calculated end date and time of the event
- *       example:
- *         id: 60d0fe4f5311236168a109ca
- *         name: Annual Tech Conference
- *         description: A conference discussing the latest in technology.
- *         startDate: 2024-07-01T10:00:00.000Z
- *         capacity: 200
- *         price: 50
- *         duration: 8
- *         registrationClosed: false
- *         isActive: true
- *         isPaid: true
- *         minAge: 18
- *         maxAge: 65
- *         category: 60c72b2f9b1e8e3a3c8f9e4b
+ *
+ *     EventPopulated:
+ *       allOf:
+ *         - $ref: '#/components/schemas/Event'
+ *         - type: object
+ *           properties:
+ *             category:
+ *               $ref: '#/components/schemas/EventCategory'
  */

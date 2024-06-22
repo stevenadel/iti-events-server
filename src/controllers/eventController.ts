@@ -35,5 +35,56 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
 };
 
 export const getAllEvents = async (req: Request, res: Response, next: NextFunction) => {
-    res.json({ message: "ok" });
+    const [error, events] = await asyncWrapper(
+        Event.find()
+            .populate("category")
+            .exec(),
+    );
+
+    if (error) {
+        next(error);
+        return;
+    }
+
+    res.json({ events });
+};
+
+export const getCurrentEvents = async (req: Request, res: Response, next: NextFunction) => {
+    const currentDate = new Date();
+
+    const [error, events] = await asyncWrapper(
+        Event.find({
+            endDate: { $gt: currentDate },
+            isActive: true,
+        })
+            .populate("category")
+            .exec(),
+    );
+
+    if (error) {
+        next(error);
+        return;
+    }
+
+    res.json({ events });
+};
+
+export const getFinishedEvents = async (req: Request, res: Response, next: NextFunction) => {
+    const currentDate = new Date();
+
+    const [error, events] = await asyncWrapper(
+        Event.find({
+            endDate: { $lt: currentDate },
+            isActive: true,
+        })
+            .populate("category")
+            .exec(),
+    );
+
+    if (error) {
+        next(error);
+        return;
+    }
+
+    res.json({ events });
 };

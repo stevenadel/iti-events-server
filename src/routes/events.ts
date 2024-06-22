@@ -1,5 +1,7 @@
 import Router from "express";
-import { createEvent } from "../controllers/eventController";
+import {
+    createEvent, getAllEvents, getCurrentEvents, getFinishedEvents,
+} from "../controllers/eventController";
 import validateCreateEventReq from "../middlewares/validateCreateEventReq";
 
 const router = Router();
@@ -16,7 +18,6 @@ const router = Router();
  * /events:
  *   post:
  *     summary: Create a new event
- *     description: Create a new event and return the created event object.
  *     tags: [Events]
  *     requestBody:
  *       required: true
@@ -87,5 +88,74 @@ const router = Router();
  *               $ref: '#/components/schemas/ValidationError'
  */
 router.post("/", validateCreateEventReq, createEvent);
+
+/**
+ * @swagger
+ * /events:
+ *   get:
+ *     summary: Get all events
+ *     tags: [Events]
+ *     responses:
+ *       200:
+ *         description: A list of All events
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 events:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EventPopulated'
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/", getAllEvents);
+
+/**
+ * @swagger
+ * /events/current:
+ *   get:
+ *     summary: Get all current events
+ *     tags: [Events]
+ *     responses:
+ *       200:
+ *         description: A list of current events
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 events:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EventPopulated'
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/current", getCurrentEvents);
+
+/**
+ * @swagger
+ * /events/finished:
+ *   get:
+ *     summary: Get all finished events
+ *     tags: [Events]
+ *     responses:
+ *       200:
+ *         description: A list of finished events
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 events:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EventPopulated'
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/finished", getFinishedEvents);
 
 export default router;
