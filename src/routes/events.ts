@@ -1,8 +1,10 @@
 import Router from "express";
 import {
     createEvent, getAllEvents, getCurrentEvents, getEventById, getFinishedEvents,
+    updateEvent,
 } from "../controllers/eventController";
 import validateCreateEventReq from "../middlewares/validateCreateEventReq";
+import validateUpdateEventReq from "../middlewares/validateUpdateEventReq";
 
 const router = Router();
 
@@ -201,4 +203,95 @@ router.get("/finished", getFinishedEvents);
  *               errors: {}
  */
 router.get("/:id", getEventById);
+
+/**
+ * @swagger
+ * /events/{id}:
+ *   put:
+ *     summary: Update an existing event
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Event ID
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the event
+ *               description:
+ *                 type: string
+ *                 description: A short description of the event
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *                 description: The start date and time of the event
+ *               capacity:
+ *                 type: integer
+ *                 description: The maximum number of attendees for the event
+ *               price:
+ *                 type: number
+ *                 description: The price of the event
+ *               duration:
+ *                 type: integer
+ *                 description: The duration of the event in hours
+ *               registrationClosed:
+ *                 type: boolean
+ *                 description: Indicates if registration for the event is closed
+ *               isActive:
+ *                 type: boolean
+ *                 description: Indicates if the event is active
+ *               isPaid:
+ *                 type: boolean
+ *                 description: Indicates if the event is a paid event
+ *               minAge:
+ *                 type: integer
+ *                 description: The minimum age requirement for attendees
+ *               maxAge:
+ *                 type: integer
+ *                 description: The maximum age limit for attendees
+ *               category:
+ *                 type: string
+ *                 description: The auto-generated id of the category
+ *     responses:
+ *       200:
+ *         description: Updated event
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 event:
+ *                   $ref: '#/components/schemas/EventPopulated'
+ *       400:
+ *         description: Invalid Id Format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid event id format"
+ *               errors: {}
+ *       404:
+ *         description: Event Not Found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "Event not found"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
+ */
+
+router.put("/:id", validateUpdateEventReq, updateEvent);
+
 export default router;
