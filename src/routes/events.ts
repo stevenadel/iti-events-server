@@ -1,6 +1,6 @@
 import Router from "express";
 import {
-    createEvent, getAllEvents, getCurrentEvents, getEventById, getFinishedEvents,
+    createEvent, deleteEvent, getAllEvents, getCurrentEvents, getEventById, getFinishedEvents,
     updateEvent,
 } from "../controllers/eventController";
 import validateCreateEventReq from "../middlewares/validateCreateEventReq";
@@ -293,5 +293,45 @@ router.get("/:id", getEventById);
  */
 
 router.put("/:id", validateUpdateEventReq, updateEvent);
+
+/**
+ * @swagger
+ * /events/{id}:
+ *   delete:
+ *     summary: Delete an existing event
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Event ID
+ *     responses:
+ *       204:
+ *         description: Event successfully deleted
+ *       400:
+ *         description: Invalid Id Format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid event id format"
+ *               errors: {}
+ *       404:
+ *         description: Event Not Found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "Event not found"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
+ */
+
+router.delete("/:id", deleteEvent);
 
 export default router;
