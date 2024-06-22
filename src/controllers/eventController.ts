@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { isValidObjectId } from "mongoose";
 import asyncWrapper from "../utils/asyncWrapper";
 import Event from "../models/Event";
 import EventCategory from "../models/EventCategory";
@@ -94,7 +93,7 @@ export const getFinishedEvents = async (req: Request, res: Response, next: NextF
 export const getEventById = async (req: Request, res: Response, next: NextFunction) => {
     const eventId = req.params.id;
 
-    if (!isValidObjectId(eventId)) {
+    if (!isObjectIdValid(eventId)) {
         next(new ValidationError("Invalid event id format"));
         return;
     }
@@ -112,4 +111,42 @@ export const getEventById = async (req: Request, res: Response, next: NextFuncti
     }
 
     res.json({ event });
+};
+
+export const updateEvent = async (req: Request, res: Response, next: NextFunction) => {
+    const eventId = req.params.id;
+    if (!isObjectIdValid(eventId)) {
+        next(new ValidationError("Invalid event id format"));
+        return;
+    }
+
+    const [findErr, event] = await asyncWrapper(Event.findById(eventId).exec());
+
+    if (findErr) {
+        next(findErr);
+        return;
+    }
+
+    if (!event) {
+        next(new NotFoundError("Event not found"));
+        return;
+    }
+
+    Object.assign(event, req.body);
+
+    const [saveError, updatedEvent] = await asyncWrapper(event.save());
+
+    if (saveError) {
+        next(saveError);
+        return;
+    }
+
+    const [populateError, populatedEvent] = await asyncWrapper(updatedEvent.populate("category"));
+
+    if (populateError) {
+        next(populateError);
+        return;
+    }
+
+    res.json({ event: populatedEvent });
 };
