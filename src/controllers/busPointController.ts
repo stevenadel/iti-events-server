@@ -3,6 +3,7 @@ import BusLine from "../models/BusLine";
 import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
 
+
 export async function addBusPoint(req: Request, res: Response, next: NextFunction) {
     const { busLineId } = req.params;
     const newBusPoint = req.body;
@@ -15,10 +16,11 @@ export async function addBusPoint(req: Request, res: Response, next: NextFunctio
     if (!busLine) {
         return next(new AppError("Bus Line not found", 404));
     }
-
+    
     busLine.busPoints.push(newBusPoint);
 
     const [saveError, updatedBusLine] = await asyncWrapper(busLine.save());
+
     if (saveError) {
         return next(new AppError("Database error. Please try again later."));
     }
@@ -46,9 +48,11 @@ export async function removeBusPoint(req: Request, res: Response, next: NextFunc
     busLine.busPoints.remove(busPoint)
 
     const [saveError, updatedBusLine] = await asyncWrapper(busLine.save());
-    if (saveError) {
-        return next(new AppError("Database error. Please try again later."));
-    }
+    // if (saveError) {
+    //     return next(new AppError("Database error. Please try again later."));
+    // }
+
+    console.log(saveError)
 
     res.status(200).json(updatedBusLine);
 }
