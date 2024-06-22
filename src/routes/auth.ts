@@ -108,7 +108,7 @@ router.post("/register", register);
 
 /**
  * @swagger
- * /auth/refresh-token:
+ * /auth/refresh:
  *   post:
  *     summary: Refresh access token
  *     tags: [Auth]
