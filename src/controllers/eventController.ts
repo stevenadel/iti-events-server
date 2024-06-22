@@ -150,3 +150,32 @@ export const updateEvent = async (req: Request, res: Response, next: NextFunctio
 
     res.json({ event: populatedEvent });
 };
+
+export const deleteEvent = async (req: Request, res: Response, next: NextFunction) => {
+    const eventId = req.params.id;
+    if (!isObjectIdValid(eventId)) {
+        next(new ValidationError("Invalid event id format"));
+        return;
+    }
+
+    const [findErr, event] = await asyncWrapper(Event.findById(eventId).exec());
+
+    if (findErr) {
+        next(findErr);
+        return;
+    }
+
+    if (!event) {
+        next(new NotFoundError("Event not found"));
+        return;
+    }
+
+    const [deleteError] = await asyncWrapper(Event.deleteOne({ _id: eventId }));
+
+    if (deleteError) {
+        next(deleteError);
+        return;
+    }
+
+    res.status(204).send();
+};
