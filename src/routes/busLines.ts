@@ -1,5 +1,5 @@
 import express from "express";
-import { createBusLine, getBusLines, getBusLineById, updateBusLine, deleteBusLine } from "../controllers/busLineController";
+import { createBusLine, getBusLines, getBusLineById, updateBusLine, deleteBusLine} from "../controllers/busLineController";
 
 const router = express.Router();
 

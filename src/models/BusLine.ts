@@ -9,9 +9,8 @@ const BusLineSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Driver'
     },
-    busCode: {
+    busPhoto: {
         type: String,
-        required: true,
     },
     name: {
         type: String,
@@ -26,6 +25,14 @@ const BusLineSchema = new Schema({
         type: Number,
         required: true,
         min: 5
+    },
+    departureTime: {
+        type: Date,
+        required: true
+    },
+    arrivalTime: {
+        type: Date,
+        required: true
     },
     busPoints: [{
         name: {
@@ -44,13 +51,12 @@ const BusLineSchema = new Schema({
         pickupTime: {
             type: Date,
             required: true
-        },
-        departureTime: {
-            type: Date,
-            required: true
         }
     }]
 });
 
 const BusLine = mongoose.model('BusLine', BusLineSchema);
 export default BusLine;
+
+
+//userBus Schema
