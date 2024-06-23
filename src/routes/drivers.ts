@@ -1,18 +1,24 @@
 import express from "express";
-import { addDriver,
+import {
+    addDriver,
     deleteDriver,
     updateDriver,
     getDriverById,
-    getAllDrivers } from "../controllers/driverController";
+    getAllDrivers
+} from "../controllers/driverController";
+import authenticateUser from "../middlewares/authenticateUser";
+import isAdmin from "../middlewares/isAdmin";
+
+
 
 const router = express.Router();
 
-router.get("/", getAllDrivers);
-router.post("/", addDriver);
+router.get("/", authenticateUser, isAdmin, getAllDrivers);
+router.post("/", authenticateUser, isAdmin, addDriver);
 
-router.get("/:id", getDriverById);
-router.put("/:id", updateDriver);
-router.delete("/:id", deleteDriver);
+router.get("/:id",authenticateUser, getDriverById);
+router.put("/:id", authenticateUser, isAdmin, updateDriver);
+router.delete("/:id", authenticateUser, isAdmin, deleteDriver);
 
 
 export default router;
