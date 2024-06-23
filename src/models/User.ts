@@ -37,6 +37,16 @@ const userSchema = new Schema<UserDocument>(
             minlength: [2, "Last name must be at least 2 characters long"],
             maxlength: [20, "Last name must be at most 20 characters long"],
         },
+        birthdate: {
+            type: Date,
+            required: [true, "Birthdate is required"],
+            validate: {
+                validator(value: Date) {
+                    return value <= new Date();
+                },
+                message: "Birthdate cannot be in the future",
+            },
+        },
         email: {
             type: String,
             required: [true, "Email is required"],
@@ -132,6 +142,7 @@ export default User;
  *       required:
  *         - firstName
  *         - lastName
+ *         - birthdate
  *         - email
  *         - password
  *       properties:
@@ -152,6 +163,11 @@ export default User;
  *           minLength: 2
  *           maxLength: 20
  *           pattern: "^[A-Za-z]+$"
+ *         birthdate:
+ *           type: string
+ *           format: date
+ *           description: The birthdate of the user
+ *           example: 2000-01-01
  *         email:
  *           type: string
  *           description: The email of the user
@@ -187,6 +203,7 @@ export default User;
  *         id: 60d0fe4f5311236168a109ca
  *         firstName: John
  *         lastName: Doe
+ *         birthdate: 2000-01-01
  *         email: john.doe@example.com
  *         role: guest
  *         createdAt: 2021-06-22T12:00:00Z
