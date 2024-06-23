@@ -6,6 +6,7 @@ import driverRouter from "./drivers";
 import eventRouter from "./events";
 import busLineRouter from "./busLines";
 import busPointRouter from "./busPoints";
+import busUsers from "./busUsers";
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use("/drivers", driverRouter);
 router.use("/events", eventRouter);
 router.use("/buses/lines", busLineRouter);
 router.use("/buses/points", busPointRouter);
+router.use("/buses/users", busUsers);
 
 export default router;
