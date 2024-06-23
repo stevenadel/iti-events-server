@@ -1,10 +1,11 @@
 import express from "express";
 import { subscribe, unsubscribe, getAllBusUsers } from "../controllers/busUsersController";
+import authenticateUser from "../middlewares/authenticateUser";
 
 const router = express.Router();
 
-router.post("/", subscribe);
-router.delete("/", unsubscribe);
-router.get("/:busLineId", getAllBusUsers);
+router.post("/", authenticateUser, subscribe);
+router.post("/", authenticateUser, unsubscribe);
+router.get("/:busLineId", authenticateUser, getAllBusUsers);
 
 export default router;
