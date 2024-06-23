@@ -9,10 +9,15 @@ import Event from "../models/Event";
 export const createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { name } = req.body;
 
-    const [findErr, _] = await asyncWrapper(EventCategory.findOne({ name }));
+    const [findErr, existingCategory] = await asyncWrapper(EventCategory.findOne({ name }));
 
     if (findErr) {
         next(new ValidationError("Another category with the same name exist"));
+        return;
+    }
+
+    if (existingCategory) {
+        next(new ValidationError("Category with same name exists", { name: "name already exists" }));
         return;
     }
 
