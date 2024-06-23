@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import uploadInMemory from "../configs/multerConfig";
 import ValidationError from "../errors/ValidationError";
 
-const parseFormWithSingleImage = (fieldName: string) => (req: Request, res:Response, next: NextFunction) => {
+const parseFormWithSingleImage = (fieldName: string = "image") => (req: Request, res:Response, next: NextFunction) => {
     uploadInMemory.single(fieldName)(req, res, async (err) => {
         try {
             if (err && err.code === "LIMIT_FILE_SIZE") {
