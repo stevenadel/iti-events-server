@@ -5,7 +5,7 @@ import authenticateUser from "../middlewares/authenticateUser";
 const router = express.Router();
 
 router.post("/", authenticateUser, subscribe);
-router.post("/", authenticateUser, unsubscribe);
+router.delete("/", authenticateUser, unsubscribe);
 router.get("/:busLineId", authenticateUser, getAllBusUsers);
 
 export default router;
