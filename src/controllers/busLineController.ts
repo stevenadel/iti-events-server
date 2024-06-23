@@ -4,12 +4,15 @@ import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
 
 export async function createBusLine(req: Request, res: Response, next: NextFunction) {
-    const { name, isActive, capacity } = req.body;
+    const { name, isActive, capacity, busPoints, departureTime, arrivalTime } = req.body;
 
     const busLineData = {
         name,
         isActive,
         capacity,
+        busPoints,
+        departureTime,
+        arrivalTime
     };
 
     const [error, newBusLine] = await asyncWrapper(BusLine.create(busLineData));
@@ -20,7 +23,6 @@ export async function createBusLine(req: Request, res: Response, next: NextFunct
 
     res.status(201).json(newBusLine);
 }
-
 
 export async function getBusLines(req: Request, res: Response, next: NextFunction) {
     const [error, busLines] = await asyncWrapper(BusLine.find().populate('driverID'));
@@ -51,16 +53,19 @@ export async function getBusLineById(req: Request, res: Response, next: NextFunc
     res.status(200).json(busLine);
 }
 
-
-export async function updateBusLine(req: Request, res: Response, next: NextFunction) {
+export async function updateBusLine(req: Request, res: Response, next: NextFunction) { 
     const { id } = req.params;
-    const { name, isActive, capacity , driverID } = req.body;
+    const { name, isActive, capacity, driverID, busPoints,
+        departureTime,
+        arrivalTime } = req.body;
 
 
     const [error, updatedBusLine] = await asyncWrapper(BusLine.findByIdAndUpdate(
         id,
         {
-            name, isActive, capacity, driverID
+            name, isActive, capacity, driverID, busPoints,
+            departureTime,
+            arrivalTime
         },
         { new: true }
     ))

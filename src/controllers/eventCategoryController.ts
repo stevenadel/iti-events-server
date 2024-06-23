@@ -4,6 +4,7 @@ import asyncWrapper from "../utils/asyncWrapper";
 import ValidationError from "../errors/ValidationError";
 import NotFoundError from "../errors/NotFoundError";
 import isObjectIdValid from "../utils/mongoose";
+import Event from "../models/Event";
 
 export const createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { name } = req.body;
@@ -56,6 +57,23 @@ export const getCategoryById = async (req: Request, res: Response, next: NextFun
     }
 
     res.json({ category });
+};
+
+export const getCategoryEvents = async (req: Request, res: Response, next: NextFunction) => {
+    const categoryId = req.params.id;
+    if (!isObjectIdValid(categoryId)) {
+        next(new ValidationError("Invalid id format"));
+        return;
+    }
+
+    const [err, events] = await asyncWrapper(Event.find({ category: categoryId }));
+
+    if (err) {
+        next(err);
+        return;
+    }
+
+    res.json({ events });
 };
 
 export const updateCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

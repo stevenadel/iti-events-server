@@ -12,7 +12,6 @@ export enum UserRole {
     Guest = "guest",
     Student = "student",
     Employee = "employee",
-    Organization = "organization",
     Admin = "admin",
 }
 
@@ -60,7 +59,10 @@ const userSchema = new Schema<UserDocument>(
         },
         role: {
             type: String,
-            enum: Object.values(UserRole),
+            enum: {
+                values: Object.values(UserRole),
+                message: "{VALUE} is not a valid role.",
+            },
             default: UserRole.Guest,
         },
     },
@@ -171,7 +173,6 @@ export default User;
  *             - guest
  *             - student
  *             - employee
- *             - organization
  *             - admin
  *           example: guest
  *         createdAt:

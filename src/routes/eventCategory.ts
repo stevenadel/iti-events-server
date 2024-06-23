@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-    createCategory, deleteCategoryById, getAllCategories, getCategoryById, updateCategoryById,
+    createCategory, deleteCategoryById, getAllCategories, getCategoryById, getCategoryEvents, updateCategoryById,
 } from "../controllers/eventCategoryController";
 import validateEventCategoryReq from "../middlewares/validateEventCategoryReq";
 
@@ -97,15 +97,71 @@ router.get("/", getAllCategories);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/NotFoundError'
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid event id format"
+ *               errors: {}
  *       404:
- *         description: Category Not Found
+ *         description: Event Not Found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "Event not found"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id", getCategoryById);
+
+/**
+ * @swagger
+ * /event-categories/{id}/events:
+ *   get:
+ *     summary: Get all category events
+ *     tags: [EventCategories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The category ID
+ *     responses:
+ *       200:
+ *         description: The category description by id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 events:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Invalid Id Format
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid event id format"
+ *               errors: {}
+ *       404:
+ *         description: Event Not Found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "Event not found"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
  */
-router.get("/:id", getCategoryById);
+router.get("/:id/events", getCategoryEvents);
 
 /**
  * @swagger

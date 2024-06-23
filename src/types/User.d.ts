@@ -8,3 +8,5 @@ export interface UserAttributes {
     isActive: boolean;
     role: UserRole;
 }
+
+export type UserToken = UserAttributes & { id: string };
