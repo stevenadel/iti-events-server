@@ -12,7 +12,6 @@ export enum UserRole {
     Guest = "guest",
     Student = "student",
     Employee = "employee",
-    Organization = "organization",
     Admin = "admin",
 }
 
@@ -174,7 +173,6 @@ export default User;
  *             - guest
  *             - student
  *             - employee
- *             - organization
  *             - admin
  *           example: guest
  *         createdAt:
