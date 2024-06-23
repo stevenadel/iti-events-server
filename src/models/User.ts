@@ -60,7 +60,10 @@ const userSchema = new Schema<UserDocument>(
         },
         role: {
             type: String,
-            enum: Object.values(UserRole),
+            enum: {
+                values: Object.values(UserRole),
+                message: "{VALUE} is not a valid role.",
+            },
             default: UserRole.Guest,
         },
     },
