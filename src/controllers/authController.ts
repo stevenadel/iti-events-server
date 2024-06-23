@@ -87,7 +87,14 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         return next(new AppError("Database error. Please try again later."));
     }
 
-    res.status(201).json(newUser);
+    const accessToken = generateAccessToken(newUser as UserToken);
+    const refreshToken = generateRefreshToken(newUser as UserToken);
+
+    res.status(201).json({
+        user: newUser,
+        accessToken,
+        refreshToken,
+    });
 }
 
 export async function refresh(req: Request, res: Response, next: NextFunction) {
