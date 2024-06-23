@@ -22,9 +22,6 @@ if (!JWT_ACCESS_SECRET || !JWT_REFRESH_SECRET) {
 function getTokenPayload(user: UserToken) {
     return {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
         role: user.role,
     };
 }

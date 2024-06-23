@@ -15,5 +15,12 @@ export async function getAllUsers(req: Request, res: Response, next: NextFunctio
 }
 
 export async function getMe(req: AuthenticatedRequest, res:Response, next: NextFunction) {
-    res.json({ user: req.user });
+    const { id } = req.user;
+    const [error, user] = await asyncWrapper(User.findById(id).exec());
+
+    if (error) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    res.json(user);
 }
