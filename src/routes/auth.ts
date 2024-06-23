@@ -81,6 +81,11 @@ router.post("/login", login);
  *                 minLength: 2
  *                 maxLength: 20
  *                 example: Doe
+ *               birthdate:
+ *                 type: string
+ *                 description: The user's birthdate
+ *                 format: date
+ *                 example: 1990-01-01
  *               email:
  *                 type: string
  *                 description: The user's email
@@ -91,14 +96,24 @@ router.post("/login", login);
  *                 minLength: 8
  *                 maxLength: 25
  *                 example: Passw0rd!
- *     responses:
+*     responses:
  *       201:
  *         description: User registered successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
- *               $ref: '#/components/schemas/User'
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 accessToken:
+ *                   type: string
+ *                   description: The access token for the user
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 refreshToken:
+ *                   type: string
+ *                   description: The refresh token for the user
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *       400:
  *         description: Validation error
  *       409:
