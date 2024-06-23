@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import cloudinary from "../configs/cloudinary.config";
+import cloudinary from "../configs/cloudinaryConfig";
 
 const uploadSingleImageToCloud = async (req: Request, res: Response, next: NextFunction) => {
     try {
