@@ -2,10 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import BusUser from "../models/UserBus";
 import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
+import { AuthenticatedRequest } from "../middlewares/authenticateUser";
 
-export async function subscribe(req: Request, res: Response, next: NextFunction) {
-    const { busLineId , userId } = req.body;
 
+export async function subscribe(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const { busLineId } = req.body;
+    const userId = req.user;
     const busUserData = {
         busLineId,
         userId
@@ -19,8 +21,12 @@ export async function subscribe(req: Request, res: Response, next: NextFunction)
 
     res.status(201).json(newBusUser);
 }
-export async function unsubscribe(req: Request, res: Response, next: NextFunction) {
-    const { busLineId, userId } = req.body;
+
+
+
+export async function unsubscribe(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const { busLineId } = req.body;
+    const userId = req.user;
 
     const [error, result] = await asyncWrapper(BusUser.findOneAndDelete({ busLineId, userId }));
 

@@ -12,9 +12,7 @@ const router = Router();
  *   description: User management
  */
 
-router.get("/", 
-    // authenticateUser, isAdmin,
-     getAllUsers);
+router.get("/", authenticateUser, isAdmin, getAllUsers);
 
 /**
  * @swagger
