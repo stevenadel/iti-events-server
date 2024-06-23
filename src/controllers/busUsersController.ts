@@ -8,18 +8,20 @@ import { AuthenticatedRequest } from "../middlewares/authenticateUser";
 export async function subscribe(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const { busLineId } = req.body;
     const userId = req.user;
-    const busUserData = {
-        busLineId,
-        userId
-    };
 
-    const [error, newBusUser] = await asyncWrapper(BusUser.create(busUserData));
+    const [error, updatedBusUser] = await asyncWrapper(
+        BusUser.findOneAndUpdate(
+            { userId: userId },
+            { busLineId: busLineId },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        )
+    );
 
     if (error) {
         return next(new AppError("Database error. Please try again later."));
     }
 
-    res.status(201).json(newBusUser);
+    res.status(201).json(updatedBusUser);
 }
 
 
