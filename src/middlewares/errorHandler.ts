@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "../errors/AppError";
 import Errors from "../types/Errors";
-import deleteFromCloudinary from "../utils/cloudinary.utils";
+import deleteFromCloudinary from "../utils/cloudinary";
 import asyncWrapper from "../utils/asyncWrapper";
 
 const errorHandler = async (err: Error, req: Request, res: Response, next: NextFunction) => {

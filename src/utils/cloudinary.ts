@@ -1,4 +1,4 @@
-import cloudinary from "../configs/cloudinary.config";
+import cloudinary from "../configs/cloudinaryConfig";
 
 const deleteFromCloudinary = async (publicId: string): Promise<void> => (
     new Promise((resolve, reject) => {

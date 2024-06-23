@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import uploadInMemory from "../configs/multer.config";
+import uploadInMemory from "../configs/multerConfig";
 import ValidationError from "../errors/ValidationError";
 
 const parseFormWithSingleImage = (fieldName: string) => (req: Request, res:Response, next: NextFunction) => {
