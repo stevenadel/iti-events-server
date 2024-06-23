@@ -34,3 +34,16 @@ export async function unsubscribe(req: Request, res: Response, next: NextFunctio
 
     res.status(200).json({ message: "Successfully unsubscribed." });
 }
+
+export async function getAllBusUsers(req: Request, res: Response, next: NextFunction) {
+
+    const { busLineId } = req.params;
+
+    const [error, busUsers] = await asyncWrapper(BusUser.find({ busLineId }));
+
+    if (error) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    res.status(200).json(busUsers);
+}
