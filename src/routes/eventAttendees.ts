@@ -1,7 +1,9 @@
 import { Router } from "express";
 import authenticateUser from "../middlewares/authenticateUser";
 import isAdmin from "../middlewares/isAdmin";
-import { allAttendees, approveAttendee, attendeeById } from "../controllers/attendeeController";
+import {
+    allAttendees, approveAttendee, attendeeById, rejectAttendee,
+} from "../controllers/attendeeController";
 
 const router = Router();
 
@@ -102,7 +104,7 @@ router.get("/:attendeeId", authenticateUser, isAdmin, attendeeById);
  *         description: Attendee ID
  *     responses:
  *       200:
- *         description: Approved successfully and return new attendee info
+ *         description: Successfully approved attendee and return new attendee info
  *         content:
  *           application/json:
  *             schema:
@@ -132,4 +134,53 @@ router.get("/:attendeeId", authenticateUser, isAdmin, attendeeById);
  *         description: Internal server error
  */
 router.post("/:attendeeId/approve", authenticateUser, isAdmin, approveAttendee);
+
+/**
+ * @swagger
+ * /attendees/{attendeeId}/reject:
+ *   post:
+ *     summary: Reject attendee to attend event [ADMINS ONLY]
+ *     tags: [Event Attendees]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: attendeeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Attendee ID
+ *     responses:
+ *       200:
+ *         description: Successfully rejected attendee and return new attendee info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 attendee:
+ *                   $ref: '#/components/schemas/EventAttendeePopulated'
+ *       400:
+ *         description: Invalid attendee id format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid attendee id format"
+ *               errors: {}
+ *       404:
+ *         description: Attendee not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "Attendee not found"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/:attendeeId/reject", authenticateUser, isAdmin, rejectAttendee);
+
 export default router;
