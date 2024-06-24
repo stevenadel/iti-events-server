@@ -2,7 +2,9 @@ import { Router } from "express";
 import {
     createCategory, deleteCategoryById, getAllCategories, getCategoryById, getCategoryEvents, updateCategoryById,
 } from "../controllers/eventCategoryController";
-import validateEventCategoryReq from "../middlewares/validateEventCategoryReq";
+import validateCreateEventCategoryReq from "../middlewares/validateCreateEventCategoryReq";
+import parseFormWithSingleImage from "../middlewares/parseFormWithSingleImage";
+import validateUpdateEventCategoryReq from "../middlewares/validateUpdateEventCategoryReq";
 
 const router = Router();
 /**
@@ -21,14 +23,19 @@ const router = Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
  *             properties:
  *               name:
  *                 type: string
  *                 description: The name of the category
- *                 example: "tech"
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: An optional image for the category (max size 10MB)
  *     responses:
  *       201:
  *         description: Category created successfully
@@ -46,7 +53,8 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  */
-router.post("/", validateEventCategoryReq, createCategory);
+
+router.post("/", parseFormWithSingleImage(), validateCreateEventCategoryReq, createCategory);
 
 /**
  * @swagger
@@ -177,16 +185,18 @@ router.get("/:id/events", getCategoryEvents);
  *         required: true
  *         description: The category ID
  *     requestBody:
- *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
  *                 description: The name of the category
- *                 example: "tech"
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: An optional image for the category (max size 10MB)
  *     responses:
  *       200:
  *         description: Category updated successfully
@@ -210,7 +220,7 @@ router.get("/:id/events", getCategoryEvents);
  *             schema:
  *               $ref: '#/components/schemas/NotFoundError'
  */
-router.put("/:id", validateEventCategoryReq, updateCategoryById);
+router.put("/:id", parseFormWithSingleImage(), validateUpdateEventCategoryReq, updateCategoryById);
 
 /**
  * @swagger

@@ -64,6 +64,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
 export async function register(req: Request, res: Response, next: NextFunction) {
     const userData = req.body;
+    delete userData.isActive;
     delete userData.role;
 
     const [error, newUser] = await asyncWrapper(User.create(userData));
