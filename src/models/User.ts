@@ -60,8 +60,6 @@ const userSchema = new Schema<UserDocument>(
         password: {
             type: String,
             required: [true, "Password is required"],
-            minlength: [8, "Password must be at least 8 characters long"],
-            maxlength: [25, "Password must be at most 25 characters long"],
         },
         isActive: {
             type: Boolean,
@@ -87,7 +85,6 @@ userSchema.set("toJSON", {
         delete ret._id;
         delete ret.__v;
         delete ret.password;
-        delete ret.isActive;
     },
 });
 
