@@ -1,5 +1,5 @@
 import { isValidObjectId } from "mongoose";
-import EventForm from "../models/EventForm";
+import EventAttendee from "../models/EventAttendee";
 import Event from "../models/Event";
 import Receipt from "../types/Receipt";
 import { deleteImageFromCloud } from "../utils/cloudinary";
@@ -18,7 +18,7 @@ export const getEvent = async (eventId:string) => {
 };
 
 export const isUserRegisteredInEvent = async (userId:string, eventId: string) => {
-    const form = await EventForm.findOne({ userId, eventId });
+    const form = await EventAttendee.findOne({ userId, eventId });
     if (form) {
         return true;
     }
@@ -26,22 +26,22 @@ export const isUserRegisteredInEvent = async (userId:string, eventId: string) =>
 };
 
 export const registerUserInEvent = async (userId: string, eventId: string, isPaid: boolean = false, receipt: Receipt = { imageUrl: null, cloudinaryPublicId: null }) => {
-    const newEventForm = new EventForm({
+    const newEventAttendee = new EventAttendee({
         userId, eventId, isApproved: !isPaid, receipt,
     });
-    const savedEvent = await newEventForm.save();
+    const savedEvent = await newEventAttendee.save();
     await savedEvent.populate("user");
     await savedEvent.populate("event");
     return savedEvent;
 };
 
-export const getEventForm = async (userId: string, eventId: string) => {
-    const form = await EventForm.findOne({ userId, eventId });
+export const getEventAttendee = async (userId: string, eventId: string) => {
+    const form = await EventAttendee.findOne({ userId, eventId });
     return form;
 };
 
-export const deleteEventForm = async (userId: string, eventId:string) => {
-    const deletedForm = await EventForm.findOneAndDelete({ userId, eventId });
+export const deleteEventAttendee = async (userId: string, eventId:string) => {
+    const deletedForm = await EventAttendee.findOneAndDelete({ userId, eventId });
     if (deletedForm?.receipt.cloudinaryPublicId) {
         await deleteImageFromCloud(deletedForm.receipt.cloudinaryPublicId);
     }
@@ -49,6 +49,6 @@ export const deleteEventForm = async (userId: string, eventId:string) => {
 };
 
 export const getEventAttendees = async (eventId: string) => {
-    const attendees = await EventForm.find({ eventId }).populate("user").populate("event");
+    const attendees = await EventAttendee.find({ eventId }).populate("user").populate("event");
     return attendees;
 };

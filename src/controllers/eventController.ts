@@ -8,8 +8,11 @@ import isObjectIdValid from "../utils/mongoose";
 import NotFoundError from "../errors/NotFoundError";
 import { AuthenticatedRequest } from "../middlewares/authenticateUser";
 import {
-    deleteEventForm,
-    getEvent, getEventAttendees, isUserRegisteredInEvent, registerUserInEvent,
+    deleteEventAttendee,
+    getEvent,
+    getEventAttendees,
+    isUserRegisteredInEvent,
+    registerUserInEvent,
 } from "../services/eventService";
 import { uploadImageToCloud } from "../utils/cloudinary";
 import AppError from "../errors/AppError";
@@ -213,8 +216,8 @@ export const attendEvent = async (req: AuthenticatedRequest, res: Response, next
         }
 
         if (!event.isPaid) {
-            const form = await registerUserInEvent(userId, eventId);
-            res.status(201).json({ form });
+            const attendee = await registerUserInEvent(userId, eventId);
+            res.status(201).json({ attendee });
             return;
         }
         let imageUrl: string | null = null;
@@ -233,9 +236,9 @@ export const attendEvent = async (req: AuthenticatedRequest, res: Response, next
             }
         }
 
-        const form = await registerUserInEvent(userId, eventId, true, { imageUrl, cloudinaryPublicId });
+        const attendee = await registerUserInEvent(userId, eventId, true, { imageUrl, cloudinaryPublicId });
 
-        res.status(201).json({ form });
+        res.status(201).json({ attendee });
     } catch (err) {
         next(err);
     }
@@ -251,7 +254,7 @@ export const missEvent = async (req: AuthenticatedRequest, res: Response, next: 
             return;
         }
 
-        const deletedForm = await deleteEventForm(userId, eventId);
+        const deletedForm = await deleteEventAttendee(userId, eventId);
 
         if (!deletedForm) {
             next(new NotFoundError("You are not registered to this event"));
