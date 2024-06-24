@@ -1,10 +1,13 @@
 import { NextFunction, Request, Response } from "express";
+import { UploadApiResponse } from "cloudinary";
 import EventCategory from "../models/EventCategory";
 import asyncWrapper from "../utils/asyncWrapper";
 import ValidationError from "../errors/ValidationError";
 import NotFoundError from "../errors/NotFoundError";
 import isObjectIdValid from "../utils/mongoose";
 import Event from "../models/Event";
+import { deleteImageFromCloud, uploadImageToCloud } from "../utils/cloudinary";
+import AppError from "../errors/AppError";
 
 export const createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { name } = req.body;
@@ -21,7 +24,19 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
         return;
     }
 
-    const newCategory = new EventCategory({ name });
+    let imageUrl: string | null = null;
+    let cloudinaryPublicId: string | null = null;
+
+    if (req.file) {
+        const [uploadErr, result] = await asyncWrapper<UploadApiResponse>(uploadImageToCloud(req.file?.buffer));
+        if (uploadErr) {
+            next(new AppError(`Couldn't upload image due to : ${uploadErr.message}`));
+            return;
+        }
+        imageUrl = result.secure_url;
+        cloudinaryPublicId = result.public_id;
+    }
+    const newCategory = new EventCategory({ name, imageUrl, cloudinaryPublicId });
     const [createErr] = await asyncWrapper(newCategory.save());
 
     if (createErr) {
@@ -116,9 +131,38 @@ export const updateCategoryById = async (req: Request, res: Response, next: Next
         return;
     }
 
+    if (!req.file) {
+        const [updateErr, updatedCategory] = await asyncWrapper(EventCategory.findByIdAndUpdate(
+            categoryId,
+            { name },
+            { new: true, runValidators: true },
+        ));
+
+        if (updateErr) {
+            next(updateErr);
+            return;
+        }
+
+        res.status(201).json({ category: updatedCategory });
+        return;
+    }
+
+    let imageUrl: string | null = null;
+    let { cloudinaryPublicId } = category;
+
+    await deleteImageFromCloud(cloudinaryPublicId || "");
+
+    const [uploadErr, result] = await asyncWrapper<UploadApiResponse>(uploadImageToCloud(req.file?.buffer));
+    if (uploadErr) {
+        next(new AppError(`Couldn't upload image due to : ${uploadErr.message}`));
+        return;
+    }
+    imageUrl = result.secure_url;
+    cloudinaryPublicId = result.public_id;
+
     const [updateErr, updatedCategory] = await asyncWrapper(EventCategory.findByIdAndUpdate(
         categoryId,
-        { name },
+        { name, imageUrl, cloudinaryPublicId },
         { new: true, runValidators: true },
     ));
 
@@ -149,6 +193,8 @@ export const deleteCategoryById = async (req: Request, res: Response, next: Next
         next(new NotFoundError(`Category with id [${categoryId}] doesn't exists`));
         return;
     }
+
+    await deleteImageFromCloud(category?.cloudinaryPublicId || "");
 
     res.status(204).json({ message: "Category deleted successfully" });
 };
