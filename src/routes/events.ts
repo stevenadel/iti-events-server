@@ -344,6 +344,8 @@ router.delete("/:id", deleteEvent);
  *   post:
  *     summary: Register authenticated user to event id
  *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: eventId
@@ -392,6 +394,7 @@ router.delete("/:id", deleteEvent);
  *       500:
  *         description: Internal server error
  */
+
 router.post("/:eventId/register", authenticateUser, parseFormWithSingleImage(), attendEvent);
 
 /**
@@ -400,6 +403,8 @@ router.post("/:eventId/register", authenticateUser, parseFormWithSingleImage(), 
  *   post:
  *     summary: Unregister authenticated user from event
  *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: eventId

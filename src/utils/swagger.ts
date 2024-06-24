@@ -11,6 +11,15 @@ const options = {
                 url: "https://iti-events-server.onrender.com/api/v1",
             },
         ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
     },
     apis: ["./src/routes/*.ts", "./src/models/*.ts", "./src/errors/*.ts"],
 };
