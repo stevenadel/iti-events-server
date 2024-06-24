@@ -347,7 +347,7 @@ router.delete("/:id", deleteEvent);
 
 /**
  * @swagger
- * /events/{eventId}/register:
+ * /events/{eventId}/attendees:
  *   post:
  *     summary: Register authenticated user to event id
  *     tags: [Events]
@@ -402,12 +402,12 @@ router.delete("/:id", deleteEvent);
  *         description: Internal server error
  */
 
-router.post("/:eventId/register", authenticateUser, parseFormWithSingleImage(), attendEvent);
+router.post("/:eventId/attendees", authenticateUser, parseFormWithSingleImage(), attendEvent);
 
 /**
  * @swagger
- * /events/{eventId}/unregister:
- *   post:
+ * /events/{eventId}/attendees:
+ *   delete:
  *     summary: Unregister authenticated user from event
  *     tags: [Events]
  *     security:
@@ -443,7 +443,7 @@ router.post("/:eventId/register", authenticateUser, parseFormWithSingleImage(), 
  *       500:
  *         description: Internal server error
  */
-router.post("/:eventId/unregister", authenticateUser, missEvent);
+router.delete("/:eventId/attendees", authenticateUser, missEvent);
 
 /**
  * @swagger
