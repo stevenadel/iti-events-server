@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../utils/asyncWrapper";
-import User from "../models/User";
+import User, { UserRole } from "../models/User";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
 import NotFoundError from "../errors/NotFoundError";
@@ -21,7 +21,51 @@ export async function getMe(req: AuthenticatedRequest, res:Response, next: NextF
     res.json({ user: req.user });
 }
 
-export async function getUserById(req: Request, res: Response, next: NextFunction) {
+export async function updateMe(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const userId = req.user.id;
+    const updateData = req.body;
+
+    if (req.user.role !== UserRole.Admin) {
+        delete updateData.isActive;
+        delete updateData.role;
+    }
+
+    if (updateData.password) {
+        if (updateData.password.length < 8 || updateData.password.length > 25) {
+            return next(new AppError("Password must be between 8 and 25 characters long.", 422));
+        }
+    }
+
+    const [error, updatedUser] = await asyncWrapper(
+        User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true }),
+    );
+
+    if (error) {
+        if (error instanceof mongoose.Error.ValidationError) {
+            const requiredError = Object.values(error.errors).find((err) => err.kind === "required");
+
+            if (requiredError) {
+                return next(new DataValidationError(error, 400));
+            }
+
+            return next(new DataValidationError(error));
+        }
+
+        if ((error as any).code === 11000) {
+            return next(new AppError("Email already exists. Please use a different email.", 409));
+        }
+
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    if (!updatedUser) {
+        return next(new NotFoundError("User not found."));
+    }
+
+    res.json(updatedUser);
+}
+
+export async function getUser(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
