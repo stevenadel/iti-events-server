@@ -2,6 +2,7 @@ import Router from "express";
 import {
     attendEvent,
     createEvent, deleteEvent, getAllEvents, getCurrentEvents, getEventById, getFinishedEvents,
+    missEvent,
     updateEvent,
 } from "../controllers/eventController";
 import validateCreateEventReq from "../middlewares/validateCreateEventReq";
@@ -393,4 +394,42 @@ router.delete("/:id", deleteEvent);
  */
 router.post("/:eventId/register", authenticateUser, parseFormWithSingleImage(), attendEvent);
 
+/**
+ * @swagger
+ * /events/{eventId}/unregister:
+ *   post:
+ *     summary: Unregister authenticated user from event
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Event ID
+ *     responses:
+ *       204:
+ *         description: User registration cancelled successfully
+ *       400:
+ *         description: Invalid Id Format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid event id format"
+ *               errors: {}
+ *       404:
+ *         description: User is not registered to this event
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "User is not registered to this event"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/:eventId/unregister", authenticateUser, missEvent);
 export default router;

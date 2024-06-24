@@ -7,10 +7,12 @@ import ValidationError from "../errors/ValidationError";
 import isObjectIdValid from "../utils/mongoose";
 import NotFoundError from "../errors/NotFoundError";
 import { AuthenticatedRequest } from "../middlewares/authenticateUser";
-import { getEvent, isUserRegisteredInEvent, registerUserInEvent } from "../services/eventService";
+import {
+    deleteEventForm,
+    getEvent, isUserRegisteredInEvent, registerUserInEvent,
+} from "../services/eventService";
 import { uploadImageToCloud } from "../utils/cloudinary";
 import AppError from "../errors/AppError";
-// import getAuthTokenPayload from "../utils/getAuthTokenPayload";
 
 export const createEvent = async (req: Request, res: Response, next: NextFunction) => {
     const { category: categoryId } = req.body;
@@ -234,6 +236,29 @@ export const attendEvent = async (req: AuthenticatedRequest, res: Response, next
         const form = await registerUserInEvent(userId, eventId, true, { imageUrl, cloudinaryPublicId });
 
         res.status(201).json({ form });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const missEvent = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+        const { eventId } = req.params;
+        const { id: userId } = req.user;
+
+        if (!isValidObjectId(eventId)) {
+            next(new ValidationError("Invalid event id"));
+            return;
+        }
+
+        const deletedForm = await deleteEventForm(userId, eventId);
+
+        if (!deletedForm) {
+            next(new NotFoundError("You are not registered to this event"));
+            return;
+        }
+
+        res.status(204).json({ message: "Deleted Successfully" });
     } catch (err) {
         next(err);
     }

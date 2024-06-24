@@ -2,6 +2,7 @@ import { isValidObjectId } from "mongoose";
 import EventForm from "../models/EventForm";
 import Event from "../models/Event";
 import Receipt from "../types/Receipt";
+import { deleteImageFromCloud } from "../utils/cloudinary";
 
 export const getEvent = async (eventId:string) => {
     if (!isValidObjectId(eventId)) {
@@ -32,4 +33,17 @@ export const registerUserInEvent = async (userId: string, eventId: string, isPai
     await savedEvent.populate("user");
     await savedEvent.populate("event");
     return savedEvent;
+};
+
+export const getEventForm = async (userId: string, eventId: string) => {
+    const form = await EventForm.findOne({ userId, eventId });
+    return form;
+};
+
+export const deleteEventForm = async (userId: string, eventId:string) => {
+    const deletedForm = await EventForm.findOneAndDelete({ userId, eventId });
+    if (deletedForm?.receipt.cloudinaryPublicId) {
+        await deleteImageFromCloud(deletedForm.receipt.cloudinaryPublicId);
+    }
+    return deletedForm;
 };
