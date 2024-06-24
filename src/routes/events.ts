@@ -378,8 +378,8 @@ router.delete("/:id", deleteEvent);
  *             schema:
  *               type: object
  *               properties:
- *                 form:
- *                   $ref: '#/components/schemas/EventFormPopulated'
+ *                 attendee:
+ *                   $ref: '#/components/schemas/EventAttendeePopulated'
  *       400:
  *         description: Invalid Id Format
  *         content:
@@ -471,7 +471,7 @@ router.post("/:eventId/unregister", authenticateUser, missEvent);
  *                 attendees:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/EventFormPopulated'
+ *                     $ref: '#/components/schemas/EventAttendeePopulated'
  *       400:
  *         description: Invalid Id Format
  *         content:

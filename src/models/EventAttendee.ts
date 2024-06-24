@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import Receipt from "../types/Receipt";
-import IEventForm from "../types/EventForm";
+import IEventAttendee from "../types/EventAttendee";
 
 const ReceiptSchema = new Schema<Receipt>({
     imageUrl: {
@@ -15,7 +15,7 @@ const ReceiptSchema = new Schema<Receipt>({
     _id: false,
 });
 
-const EventFormSchema = new Schema<IEventForm>(
+const EventAttendeeSchema = new Schema<IEventAttendee>(
     {
         userId: {
             type: Schema.Types.ObjectId,
@@ -54,23 +54,23 @@ const EventFormSchema = new Schema<IEventForm>(
     },
 );
 
-EventFormSchema.virtual("user", {
+EventAttendeeSchema.virtual("user", {
     ref: "User",
     localField: "userId",
     foreignField: "_id",
     justOne: true,
 });
 
-EventFormSchema.virtual("event", {
+EventAttendeeSchema.virtual("event", {
     ref: "Event",
     localField: "eventId",
     foreignField: "_id",
     justOne: true,
 });
 
-const EventForm = model<IEventForm>("EventForm", EventFormSchema);
+const EventAttendee = model<IEventAttendee>("EventAttendee", EventAttendeeSchema);
 
-export default EventForm;
+export default EventAttendee;
 
 /**
  * @swagger
@@ -87,7 +87,7 @@ export default EventForm;
  * @swagger
  * components:
  *   schemas:
- *     EventFormPopulated:
+ *     EventAttendeePopulated:
  *       type: object
  *       properties:
  *         id:
@@ -100,7 +100,7 @@ export default EventForm;
  *         event:
  *           $ref: '#/components/schemas/Event'
  *
- *     EventForm:
+ *     EventAttendee:
  *         type: object
  *         properties:
  *           id:
