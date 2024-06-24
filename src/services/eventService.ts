@@ -47,3 +47,8 @@ export const deleteEventForm = async (userId: string, eventId:string) => {
     }
     return deletedForm;
 };
+
+export const getEventAttendees = async (eventId: string) => {
+    const attendees = await EventForm.find({ eventId }).populate("user").populate("event");
+    return attendees;
+};
