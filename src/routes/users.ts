@@ -1,7 +1,9 @@
 import { Router } from "express";
 import authenticateUser from "../middlewares/authenticateUser";
 import isAdmin from "../middlewares/isAdmin";
-import { getAllUsers, getMe, getUserById, createUser, deleteUser, updateUser } from "../controllers/userController";
+import {
+    getAllUsers, getMe, updateMe, getUser, createUser, deleteUser, updateUser,
+} from "../controllers/userController";
 
 const router = Router();
 
@@ -36,6 +38,36 @@ router.get("/", authenticateUser, isAdmin, getAllUsers);
 
 /**
  * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       409:
+ *         description: Email already exists
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/", authenticateUser, isAdmin, createUser);
+
+/**
+ * @swagger
  * /users/me:
  *   get:
  *     summary: Get current logged in user info
@@ -56,6 +88,63 @@ router.get("/", authenticateUser, isAdmin, getAllUsers);
  *         description: Internal server error
  */
 router.get("/me", authenticateUser, getMe);
+
+/**
+ * @swagger
+ * /users/me:
+ *   patch:
+ *     summary: Update current logged in user info
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 description: The first name of the user
+ *                 pattern: '^[A-Za-z]+$'
+ *                 minLength: 2
+ *                 maxLength: 20
+ *                 example: John
+ *               lastName:
+ *                 type: string
+ *                 description: The last name of the user
+ *                 pattern: '^[A-Za-z]+$'
+ *                 minLength: 2
+ *                 maxLength: 20
+ *                 example: Doe
+ *               birthdate:
+ *                 type: string
+ *                 format: date
+ *                 description: The birthdate of the user
+ *                 example: 2000-01-01
+ *               email:
+ *                 type: string
+ *                 description: The user's email
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 description: The user's password
+ *                 minLength: 8
+ *                 maxLength: 25
+ *                 example: Passw0rd!
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Validation error
+ *       409:
+ *         description: Email already exists
+ */
+router.patch("/me", authenticateUser, updateMe);
 
 /**
  * @swagger
@@ -84,37 +173,7 @@ router.get("/me", authenticateUser, getMe);
  *       500:
  *         description: Internal server error
  */
-router.get("/:id", authenticateUser, isAdmin, getUserById);
-
-/**
- * @swagger
- * /users:
- *   post:
- *     summary: Create a new user
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/User'
- *     responses:
- *       201:
- *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       400:
- *         description: Validation error
- *       401:
- *         description: Unauthorized
- *       409:
- *         description: Email already exists
- *       500:
- *         description: Internal server error
- */
-router.post("/", authenticateUser, isAdmin, createUser);
+router.get("/:id", authenticateUser, isAdmin, getUser);
 
 /**
  * @swagger
