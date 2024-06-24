@@ -87,6 +87,10 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         return next(new AppError("Database error. Please try again later."));
     }
 
+    if (newUser.password.length < 8 || newUser.password.length > 25) {
+        return next(new AppError("Password must be between 8 and 25 characters long.", 422));
+    }
+
     const accessToken = generateAccessToken(newUser as UserToken);
     const refreshToken = generateRefreshToken(newUser as UserToken);
 
