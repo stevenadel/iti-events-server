@@ -9,7 +9,7 @@ import NotFoundError from "../errors/NotFoundError";
 import { AuthenticatedRequest } from "../middlewares/authenticateUser";
 import {
     deleteEventForm,
-    getEvent, isUserRegisteredInEvent, registerUserInEvent,
+    getEvent, getEventAttendees, isUserRegisteredInEvent, registerUserInEvent,
 } from "../services/eventService";
 import { uploadImageToCloud } from "../utils/cloudinary";
 import AppError from "../errors/AppError";
@@ -259,6 +259,22 @@ export const missEvent = async (req: AuthenticatedRequest, res: Response, next: 
         }
 
         res.status(204).json({ message: "Deleted Successfully" });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const eventAttendees = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+        const { eventId } = req.params;
+        if (!isValidObjectId(eventId)) {
+            next(new ValidationError("Invalid event id format"));
+            return;
+        }
+
+        const attendees = await getEventAttendees(eventId);
+
+        res.json({ attendees });
     } catch (err) {
         next(err);
     }

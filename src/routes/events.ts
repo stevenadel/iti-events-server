@@ -1,7 +1,13 @@
 import Router from "express";
 import {
     attendEvent,
-    createEvent, deleteEvent, getAllEvents, getCurrentEvents, getEventById, getFinishedEvents,
+    createEvent,
+    deleteEvent,
+    eventAttendees,
+    getAllEvents,
+    getCurrentEvents,
+    getEventById,
+    getFinishedEvents,
     missEvent,
     updateEvent,
 } from "../controllers/eventController";
@@ -9,6 +15,7 @@ import validateCreateEventReq from "../middlewares/validateCreateEventReq";
 import validateUpdateEventReq from "../middlewares/validateUpdateEventReq";
 import authenticateUser from "../middlewares/authenticateUser";
 import parseFormWithSingleImage from "../middlewares/parseFormWithSingleImage";
+import isAdmin from "../middlewares/isAdmin";
 
 const router = Router();
 
@@ -437,4 +444,45 @@ router.post("/:eventId/register", authenticateUser, parseFormWithSingleImage(), 
  *         description: Internal server error
  */
 router.post("/:eventId/unregister", authenticateUser, missEvent);
+
+/**
+ * @swagger
+ * /events/{eventId}/attendees:
+ *   get:
+ *     summary: Get all the attendess of an event [ADMINS ONLY]
+ *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Event ID
+ *     responses:
+ *       200:
+ *         description: User registration cancelled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 attendees:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EventFormPopulated'
+ *       400:
+ *         description: Invalid Id Format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid event id format"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:eventId/attendees", authenticateUser, isAdmin, eventAttendees);
 export default router;
