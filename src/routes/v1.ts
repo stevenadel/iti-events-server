@@ -7,6 +7,7 @@ import eventRouter from "./events";
 import busLineRouter from "./busLines";
 import busPointRouter from "./busPoints";
 import busUsers from "./busUsers";
+import attendeeRouter from "./eventAttendees";
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.use("/users", userRouter);
 router.use("/event-categories", eventCategoryRouter);
 router.use("/drivers", driverRouter);
 router.use("/events", eventRouter);
+router.use("/attendees", attendeeRouter);
 router.use("/buses/lines", busLineRouter);
 router.use("/buses/points", busPointRouter);
 router.use("/buses/users", busUsers);
