@@ -1,10 +1,13 @@
 import Router from "express";
 import {
+    attendEvent,
     createEvent, deleteEvent, getAllEvents, getCurrentEvents, getEventById, getFinishedEvents,
     updateEvent,
 } from "../controllers/eventController";
 import validateCreateEventReq from "../middlewares/validateCreateEventReq";
 import validateUpdateEventReq from "../middlewares/validateUpdateEventReq";
+import authenticateUser from "../middlewares/authenticateUser";
+import parseFormWithSingleImage from "../middlewares/parseFormWithSingleImage";
 
 const router = Router();
 
@@ -333,5 +336,61 @@ router.put("/:id", validateUpdateEventReq, updateEvent);
  */
 
 router.delete("/:id", deleteEvent);
+
+/**
+ * @swagger
+ * /events/{eventId}/register:
+ *   post:
+ *     summary: Register authenticated user to event id
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Event ID
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: An optional Receipt image for paid events (max size 10MB)
+ *     responses:
+ *       201:
+ *         description: Register user to given event id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 form:
+ *                   $ref: '#/components/schemas/EventFormPopulated'
+ *       400:
+ *         description: Invalid Id Format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid event id format"
+ *               errors: {}
+ *       404:
+ *         description: Event Not Found | User is already registered to this event
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "Event not found"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/:eventId/register", authenticateUser, parseFormWithSingleImage(), attendEvent);
 
 export default router;

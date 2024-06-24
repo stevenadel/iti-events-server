@@ -1,10 +1,16 @@
 import { Request, Response, NextFunction } from "express";
+import { isValidObjectId } from "mongoose";
 import asyncWrapper from "../utils/asyncWrapper";
 import Event from "../models/Event";
 import EventCategory from "../models/EventCategory";
 import ValidationError from "../errors/ValidationError";
 import isObjectIdValid from "../utils/mongoose";
 import NotFoundError from "../errors/NotFoundError";
+import { AuthenticatedRequest } from "../middlewares/authenticateUser";
+import { getEvent, isUserRegisteredInEvent, registerUserInEvent } from "../services/eventService";
+import { uploadImageToCloud } from "../utils/cloudinary";
+import AppError from "../errors/AppError";
+// import getAuthTokenPayload from "../utils/getAuthTokenPayload";
 
 export const createEvent = async (req: Request, res: Response, next: NextFunction) => {
     const { category: categoryId } = req.body;
@@ -178,4 +184,57 @@ export const deleteEvent = async (req: Request, res: Response, next: NextFunctio
     }
 
     res.status(204).send();
+};
+
+export const attendEvent = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+        const { eventId } = req.params;
+        const { id: userId } = req.user;
+
+        if (!isValidObjectId(eventId)) {
+            next(new ValidationError("Invalid event id"));
+            return;
+        }
+
+        const isRegistered = await isUserRegisteredInEvent(userId, eventId);
+
+        if (isRegistered) {
+            next(new ValidationError("User is already registered in this event"));
+            return;
+        }
+
+        const event = await getEvent(eventId);
+
+        if (!event) {
+            next(new NotFoundError("Event doesn't exist"));
+            return;
+        }
+
+        if (!event.isPaid) {
+            const form = await registerUserInEvent(userId, eventId);
+            res.status(201).json({ form });
+            return;
+        }
+        let imageUrl: string | null = null;
+        let cloudinaryPublicId : string | null = null;
+
+        if (req.file?.buffer) {
+            const [uploadErr, result] = await asyncWrapper(uploadImageToCloud(req.file?.buffer));
+            if (uploadErr) {
+                next(new AppError(`Couldn't upload image cause of : ${uploadErr.message}`));
+                return;
+            }
+
+            if (result) {
+                imageUrl = result.secure_url;
+                cloudinaryPublicId = result.public_id;
+            }
+        }
+
+        const form = await registerUserInEvent(userId, eventId, true, { imageUrl, cloudinaryPublicId });
+
+        res.status(201).json({ form });
+    } catch (err) {
+        next(err);
+    }
 };
