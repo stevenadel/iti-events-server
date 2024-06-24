@@ -4,7 +4,9 @@ import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
 
 export async function createBusLine(req: Request, res: Response, next: NextFunction) {
-    const { name, isActive, capacity, busPoints, departureTime, arrivalTime } = req.body;
+    const {
+        name, isActive, capacity, busPoints, departureTime, arrivalTime,
+    } = req.body;
 
     const busLineData = {
         name,
@@ -12,10 +14,12 @@ export async function createBusLine(req: Request, res: Response, next: NextFunct
         capacity,
         busPoints,
         departureTime,
-        arrivalTime
+        arrivalTime,
     };
 
     const [error, newBusLine] = await asyncWrapper(BusLine.create(busLineData));
+
+    console.log(error)
 
     if (error) {
         return next(new AppError("Database error. Please try again later."));
@@ -25,8 +29,7 @@ export async function createBusLine(req: Request, res: Response, next: NextFunct
 }
 
 export async function getBusLines(req: Request, res: Response, next: NextFunction) {
-    const [error, busLines] = await asyncWrapper(BusLine.find().populate('driverID'));
-
+    const [error, busLines] = await asyncWrapper(BusLine.find().populate("driverID"));
 
     if (error) {
         return next(new AppError("Database error. Please try again later."));
@@ -35,16 +38,14 @@ export async function getBusLines(req: Request, res: Response, next: NextFunctio
     res.status(200).json(busLines);
 }
 
-
 export async function getBusLineById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
 
-    const [error, busLine] = await asyncWrapper(BusLine.findById(id).populate('driverID'));
+    const [error, busLine] = await asyncWrapper(BusLine.findById(id).populate("driverID"));
 
     if (error) {
         return next(new AppError("Database error. Please try again later."));
     }
-
 
     if (!busLine) {
         return next(new AppError("Bus Line not found", 404));
@@ -53,22 +54,27 @@ export async function getBusLineById(req: Request, res: Response, next: NextFunc
     res.status(200).json(busLine);
 }
 
-export async function updateBusLine(req: Request, res: Response, next: NextFunction) { 
+export async function updateBusLine(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    const { name, isActive, capacity, driverID, busPoints,
+    const {
+        name, isActive, capacity, driverID, busPoints,
         departureTime,
-        arrivalTime } = req.body;
-
+        arrivalTime,
+    } = req.body;
 
     const [error, updatedBusLine] = await asyncWrapper(BusLine.findByIdAndUpdate(
         id,
         {
-            name, isActive, capacity, driverID, busPoints,
+            name,
+            isActive,
+            capacity,
+            driverID,
+            busPoints,
             departureTime,
-            arrivalTime
+            arrivalTime,
         },
-        { new: true }
-    ))
+        { new: true },
+    ));
 
     if (error) {
         return next(new AppError("Database error. Please try again later."));
@@ -81,12 +87,10 @@ export async function updateBusLine(req: Request, res: Response, next: NextFunct
     res.status(200).json(updatedBusLine);
 }
 
-
 export async function deleteBusLine(req: Request, res: Response, next: NextFunction) {
-
     const { id } = req.params;
 
-    const [error, deletedRows] = await asyncWrapper(BusLine.findByIdAndDelete(id))
+    const [error, deletedRows] = await asyncWrapper(BusLine.findByIdAndDelete(id));
 
     if (error) {
         return next(new AppError("Database error. Please try again later."));
