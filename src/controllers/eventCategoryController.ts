@@ -143,7 +143,7 @@ export const updateCategoryById = async (req: Request, res: Response, next: Next
             return;
         }
 
-        res.status(201).json({ category: updatedCategory });
+        res.status(200).json({ category: updatedCategory });
         return;
     }
 
@@ -171,7 +171,7 @@ export const updateCategoryById = async (req: Request, res: Response, next: Next
         return;
     }
 
-    res.status(201).json({ category: updatedCategory });
+    res.status(200).json({ category: updatedCategory });
 };
 
 export const deleteCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
