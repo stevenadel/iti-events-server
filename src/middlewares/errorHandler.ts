@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "../errors/AppError";
 import Errors from "../types/Errors";
-import deleteFromCloudinary from "../utils/cloudinary";
+import { deleteImageFromCloud } from "../utils/cloudinary";
 import asyncWrapper from "../utils/asyncWrapper";
 
 const errorHandler = async (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (req.body.cloudinaryPublicId) {
-        const [deleteErr, result] = await asyncWrapper(deleteFromCloudinary(req.body.cloudinaryPublicId));
+        const [deleteErr, result] = await asyncWrapper(deleteImageFromCloud(req.body.cloudinaryPublicId));
         if (deleteErr) {
             console.log(`Couldn't delete image from cloudinary with url [${req.body.imageUrl}]`);
         }

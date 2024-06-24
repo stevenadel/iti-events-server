@@ -20,7 +20,7 @@ const uploadSingleImageToCloud = async (req: Request, res: Response, next: NextF
 
             req.body.imageUrl = result.secure_url;
             console.log(`Uploaded image with url [${req.body.imageUrl}]`);
-            req.body.cloudinaryPublicId = result.public_id;
+            req.body.imagePublicId = result.public_id;
             next();
         });
         stream.end(req.file?.buffer);

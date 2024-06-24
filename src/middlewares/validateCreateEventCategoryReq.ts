@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { formatValidationErrors } from "../utils/joiValidation";
 import ValidationError from "../errors/ValidationError";
 
-function validateEventCategoryReq(req: Request, res: Response, next: NextFunction) {
+function validateCreateEventCategoryReq(req: Request, res: Response, next: NextFunction) {
     const schema = Joi.object({
         name: Joi.string().min(3).required().messages({
             "string.base": "Name should be a type of 'text'",
@@ -23,4 +23,4 @@ function validateEventCategoryReq(req: Request, res: Response, next: NextFunctio
     next();
 }
 
-export default validateEventCategoryReq;
+export default validateCreateEventCategoryReq;
