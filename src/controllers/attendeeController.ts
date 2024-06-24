@@ -56,3 +56,24 @@ export const approveAttendee = async (req: Request, res: Response, next: NextFun
         next(err);
     }
 };
+
+export const rejectAttendee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { attendeeId } = req.params;
+        if (!isValidObjectId(attendeeId)) {
+            next(new ValidationError("Invalid attendee id format"));
+            return;
+        }
+
+        const attendee = await updateAttendeeApprovalStatus(attendeeId, false);
+
+        if (!attendee) {
+            next(new NotFoundError("Attendee does not exist"));
+            return;
+        }
+
+        res.json({ attendee });
+    } catch (err) {
+        next(err);
+    }
+};
