@@ -10,6 +10,11 @@ const parseFormWithSingleImage = (fieldName: string = "image") => (req: Request,
                 return;
             }
 
+            if (err && err.code === "LIMIT_UNEXPECTED_FILE") {
+                next(new ValidationError(`${err.field} is not allowed`, { [err.field]: `${err.field} is not allowed` }));
+                return;
+            }
+
             if (err) {
                 next(err);
                 return;
