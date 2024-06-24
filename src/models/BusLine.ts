@@ -7,10 +7,6 @@ const BusLineSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Driver",
     },
-    busCode: {
-        type: String,
-        required: true,
-    },
     name: {
         type: String,
         required: true,

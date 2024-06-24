@@ -5,7 +5,7 @@ import isAdmin from "../middlewares/isAdmin";
 const router = express.Router();
 
 router.get("/",authenticateUser, getBusLines);
-router.post("/",authenticateUser, isAdmin,  createBusLine);
+router.post("/", authenticateUser, isAdmin,  createBusLine);
 
 router.get("/:id",authenticateUser,  getBusLineById);
 router.put("/:id", authenticateUser, isAdmin,  updateBusLine);
