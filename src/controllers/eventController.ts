@@ -12,6 +12,7 @@ import {
     getActiveEndedBeforeDate,
     getActiveEventsAtDate,
     getActiveEventsStartsAfterDate,
+    getAllEventsService,
     getEvent,
     getEventAttendees,
     isUserRegisteredInEvent,
@@ -49,19 +50,14 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
     res.status(201).json({ event: savedEvent });
 };
 
-export const getAllEvents = async (req: Request, res: Response, next: NextFunction) => {
-    const [error, events] = await asyncWrapper(
-        Event.find()
-            .populate("category")
-            .exec(),
-    );
+export const allEvents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const events = await getAllEventsService();
 
-    if (error) {
-        next(error);
-        return;
+        res.json({ events });
+    } catch (err) {
+        next(err);
     }
-
-    res.json({ events });
 };
 
 export const eventsHappening = async (req: Request, res: Response, next: NextFunction) => {
