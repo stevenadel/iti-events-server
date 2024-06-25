@@ -4,10 +4,11 @@ import Event from "../models/Event";
 import Receipt from "../types/Receipt";
 import { deleteImageFromCloud } from "../utils/cloudinary";
 
-export const getAllEventsService = async (isApproved: boolean | undefined = undefined) => {
-    const events = await Event.find({ isApproved }).sort({ startDate: 1 }).populate("category");
+export const getAllEventsService = async (isActive: boolean | undefined = undefined) => {
+    const events = await Event.find(isActive !== undefined ? { isActive } : {}).sort({ startDate: 1 }).populate("category");
     return events;
 };
+
 export const getEvent = async (eventId:string) => {
     if (!isValidObjectId(eventId)) {
         return null;
