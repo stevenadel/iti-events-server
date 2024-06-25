@@ -2,6 +2,7 @@ import Router from "express";
 import {
     allActiveEvents,
     allEvents,
+    allInActiveEvents,
     attendEvent,
     createEvent,
     deleteEvent,
@@ -133,6 +134,31 @@ router.get("/", authenticateUser, isAdmin, allEvents);
 
 /**
  * @swagger
+ * /events/inactive:
+ *   get:
+ *     summary: Get all inactive events [ADMINS ONLY]
+ *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of finished events in ascending order
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 events:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EventPopulated'
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/inactive", authenticateUser, isAdmin, allInActiveEvents);
+
+/**
+ * @swagger
  * /events/active:
  *   get:
  *     summary: Get all active events in ascending order
@@ -158,7 +184,7 @@ router.get("/active", allActiveEvents);
  * @swagger
  * /events/happening:
  *   get:
- *     summary: Get all currently happening events in ascending order
+ *     summary: Get all active currently happening events in ascending order
  *     tags: [Events]
  *     responses:
  *       200:
@@ -181,7 +207,7 @@ router.get("/happening", eventsHappening);
  * @swagger
  * /events/upcoming:
  *   get:
- *     summary: Get all upcoming/future events in ascending order
+ *     summary: Get all active upcoming/future events in ascending order
  *     tags: [Events]
  *     responses:
  *       200:
@@ -204,7 +230,7 @@ router.get("/upcoming", upComingEvents);
  * @swagger
  * /events/finished:
  *   get:
- *     summary: Get all finished events in ascending order
+ *     summary: Get all active finished events in ascending order
  *     tags: [Events]
  *     responses:
  *       200:
