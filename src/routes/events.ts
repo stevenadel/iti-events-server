@@ -1,5 +1,6 @@
 import Router from "express";
 import {
+    allActiveEvents,
     allEvents,
     attendEvent,
     createEvent,
@@ -129,6 +130,29 @@ router.post("/", authenticateUser, isAdmin, validateCreateEventReq, createEvent)
  *         description: Internal server error
  */
 router.get("/", authenticateUser, isAdmin, allEvents);
+
+/**
+ * @swagger
+ * /events/active:
+ *   get:
+ *     summary: Get all active events in ascending order
+ *     tags: [Events]
+ *     responses:
+ *       200:
+ *         description: A list of All events
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 events:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EventPopulated'
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/active", allActiveEvents);
 
 /**
  * @swagger

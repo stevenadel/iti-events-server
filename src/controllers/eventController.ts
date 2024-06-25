@@ -60,6 +60,16 @@ export const allEvents = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
+export const allActiveEvents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const events = await getAllEventsService(true);
+
+        res.json({ events });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const eventsHappening = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const currDate = new Date();
