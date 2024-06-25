@@ -57,6 +57,10 @@ const userSchema = new Schema<UserDocument>(
                 message: "Please enter a valid email",
             },
         },
+        emailVerified: {
+            type: Boolean,
+            default: false,
+        },
         password: {
             type: String,
             required: [true, "Password is required"],

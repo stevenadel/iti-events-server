@@ -5,9 +5,10 @@ export interface UserAttributes {
     lastName: string;
     birthdate: Date;
     email: string;
+    emailVerified: boolean;
     password: string;
     isActive: boolean;
     role: UserRole;
 }
 
-export type UserToken = UserAttributes & { id: string };
+export type UserAuth = UserAttributes & { id: string };

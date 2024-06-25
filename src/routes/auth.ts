@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, register, refresh } from "../controllers/authController";
+import { login, register, refresh, verify } from "../controllers/authController";
 
 const router = Router();
 
@@ -158,5 +158,43 @@ router.post("/register", register);
  *         description: User not found
  */
 router.post("/refresh", refresh);
+
+/**
+ * @swagger
+ * /auth/verify:
+ *   get:
+ *     summary: Verify user's email
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The verification token
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user's ID
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Verification success message
+ *                   example: Email verified successfully
+ *       400:
+ *         description: Validation error or invalid token
+ *       404:
+ *         description: User not found
+ */
+router.get("/verify", verify);
 
 export default router;

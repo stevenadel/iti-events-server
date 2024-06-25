@@ -4,10 +4,13 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../utils/asyncWrapper";
+import sendVerifyEmail from "../services/emailService";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
+import NotFoundError from "../errors/NotFoundError";
 import User from "../models/User";
-import { UserToken } from "../types/User";
+import UserToken from "../models/UserToken";
+import { UserAuth } from "../types/User";
 
 dotenv.config();
 
@@ -19,16 +22,16 @@ if (!JWT_ACCESS_SECRET || !JWT_REFRESH_SECRET) {
     throw new Error("JWT secrets are not defined in environment variables.");
 }
 
-function getTokenPayload(user: UserToken) {
+function getTokenPayload(user: UserAuth) {
     return {
         id: user.id,
         role: user.role,
     };
 }
 
-const generateAccessToken = (user: UserToken) => jwt.sign(getTokenPayload(user), JWT_ACCESS_SECRET, { expiresIn: JWT_ACCESS_EXPIRATION });
+const generateAccessToken = (user: UserAuth) => jwt.sign(getTokenPayload(user), JWT_ACCESS_SECRET, { expiresIn: JWT_ACCESS_EXPIRATION });
 
-const generateRefreshToken = (user: UserToken) => jwt.sign(getTokenPayload(user), JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRATION });
+const generateRefreshToken = (user: UserAuth) => jwt.sign(getTokenPayload(user), JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRATION });
 
 export async function login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
@@ -53,8 +56,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         return next(new AppError("Invalid email or password.", 401));
     }
 
-    const accessToken = generateAccessToken(user as UserToken);
-    const refreshToken = generateRefreshToken(user as UserToken);
+    const accessToken = generateAccessToken(user as UserAuth);
+    const refreshToken = generateRefreshToken(user as UserAuth);
 
     res.json({
         accessToken,
@@ -91,8 +94,15 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         return next(new AppError("Database error. Please try again later."));
     }
 
-    const accessToken = generateAccessToken(newUser as UserToken);
-    const refreshToken = generateRefreshToken(newUser as UserToken);
+    const accessToken = generateAccessToken(newUser as UserAuth);
+    const refreshToken = generateRefreshToken(newUser as UserAuth);
+
+    try {
+        await sendVerifyEmail(newUser.id, newUser.email);
+    } catch (emailError) {
+        await User.deleteOne({ _id: newUser.id });
+        return next(emailError);
+    }
 
     res.status(201).json({
         user: newUser,
@@ -135,6 +145,36 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
         return next(new AppError("User not found.", 404));
     }
 
-    const newAccessToken = generateAccessToken(user as UserToken);
+    const newAccessToken = generateAccessToken(user as UserAuth);
     res.json({ accessToken: newAccessToken });
+}
+
+export async function verify(req: Request, res: Response, next: NextFunction) {
+    const { token, id } = req.query;
+
+    if (!token || !id) {
+        return next(new AppError("Invalid verification link.", 400));
+    }
+
+    const [error, userToken] = await asyncWrapper(UserToken.findOne({ userId: id, token }));
+
+    if (error) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    if (!userToken) {
+        return next(new AppError("Invalid or expired verification link.", 400));
+    }
+
+    const [userError, user] = await asyncWrapper(User.findByIdAndUpdate(id, { emailVerified: true }));
+
+    if (userError) {
+        return next(new AppError("Database error. Please try again later.", 500));
+    }
+
+    if (!user) {
+        return next(new NotFoundError("User not found."));
+    }
+
+    res.json({ message: "Email verified successfully." });
 }
