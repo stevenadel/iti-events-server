@@ -1,7 +1,7 @@
 import EventAttendee from "../models/EventAttendee";
 
-export const getAllAttendees = async () => {
-    const attendees = await EventAttendee.find().populate("user").populate("event");
+export const getAllAttendees = async (isApproved: boolean | undefined = undefined) => {
+    const attendees = await EventAttendee.find(isApproved !== undefined ? { isApproved } : {}).populate("user").populate("event");
     return attendees;
 };
 

@@ -14,6 +14,16 @@ export const allAttendees = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
+export const pendingAttendees = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const attendees = await getAllAttendees(false);
+
+        res.json({ attendees });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const attendeeById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { attendeeId } = req.params;
