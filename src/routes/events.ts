@@ -4,9 +4,9 @@ import {
     createEvent,
     deleteEvent,
     eventAttendees,
+    finishedEvents,
     getAllEvents,
     getEventById,
-    getFinishedEvents,
     missEvent,
     upComingEvents,
     updateEvent,
@@ -154,11 +154,11 @@ router.get("/upcoming", upComingEvents);
  * @swagger
  * /events/finished:
  *   get:
- *     summary: Get all finished events
+ *     summary: Get all finished events in ascending order
  *     tags: [Events]
  *     responses:
  *       200:
- *         description: A list of finished events
+ *         description: A list of finished events in ascending order
  *         content:
  *           application/json:
  *             schema:
@@ -171,7 +171,7 @@ router.get("/upcoming", upComingEvents);
  *       500:
  *         description: Internal server error
  */
-router.get("/finished", getFinishedEvents);
+router.get("/finished", finishedEvents);
 
 /**
  * @swagger

@@ -9,6 +9,7 @@ import NotFoundError from "../errors/NotFoundError";
 import { AuthenticatedRequest } from "../middlewares/authenticateUser";
 import {
     deleteEventAttendee,
+    getActiveEndedBeforeDate,
     getActiveEventsStartsAfterDate,
     getEvent,
     getEventAttendees,
@@ -74,24 +75,16 @@ export const upComingEvents = async (req: Request, res: Response, next: NextFunc
     }
 };
 
-export const getFinishedEvents = async (req: Request, res: Response, next: NextFunction) => {
-    const currentDate = new Date();
+export const finishedEvents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const currentDate = new Date();
 
-    const [error, events] = await asyncWrapper(
-        Event.find({
-            endDate: { $lt: currentDate },
-            isActive: true,
-        })
-            .populate("category")
-            .exec(),
-    );
+        const events = await getActiveEndedBeforeDate(currentDate);
 
-    if (error) {
-        next(error);
-        return;
+        res.json({ events });
+    } catch (err) {
+        next(err);
     }
-
-    res.json({ events });
 };
 
 export const getEventById = async (req: Request, res: Response, next: NextFunction) => {
