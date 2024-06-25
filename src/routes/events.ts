@@ -5,10 +5,10 @@ import {
     deleteEvent,
     eventAttendees,
     getAllEvents,
-    getCurrentEvents,
     getEventById,
     getFinishedEvents,
     missEvent,
+    upComingEvents,
     updateEvent,
 } from "../controllers/eventController";
 import validateCreateEventReq from "../middlewares/validateCreateEventReq";
@@ -129,13 +129,13 @@ router.get("/", getAllEvents);
 
 /**
  * @swagger
- * /events/current:
+ * /events/upcoming:
  *   get:
- *     summary: Get all current events
+ *     summary: Get all upcoming/future events in ascending order
  *     tags: [Events]
  *     responses:
  *       200:
- *         description: A list of current events
+ *         description: A list of upcoming events in ascending order
  *         content:
  *           application/json:
  *             schema:
@@ -148,7 +148,7 @@ router.get("/", getAllEvents);
  *       500:
  *         description: Internal server error
  */
-router.get("/current", getCurrentEvents);
+router.get("/upcoming", upComingEvents);
 
 /**
  * @swagger

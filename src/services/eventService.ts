@@ -17,6 +17,11 @@ export const getEvent = async (eventId:string) => {
     return null;
 };
 
+export const getActiveEventsStartsAfterDate = async (currDate: Date) => {
+    const events = await Event.find({ startDate: { $gt: currDate }, isActive: true }).sort({ startDate: 1 }).populate("category");
+    return events;
+};
+
 export const isUserRegisteredInEvent = async (userId:string, eventId: string) => {
     const form = await EventAttendee.findOne({ userId, eventId });
     if (form) {
