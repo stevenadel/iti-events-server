@@ -20,6 +20,8 @@ const router = Router();
  *   get:
  *     summary: Get all users
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of all users
@@ -42,6 +44,8 @@ router.get("/", authenticateUser, isAdmin, getAllUsers);
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -72,6 +76,8 @@ router.post("/", authenticateUser, isAdmin, createUser);
  *   get:
  *     summary: Get current logged in user info
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Logged in user info
@@ -95,6 +101,8 @@ router.get("/me", authenticateUser, getMe);
  *   patch:
  *     summary: Update current logged in user info
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -152,6 +160,8 @@ router.patch("/me", authenticateUser, updateMe);
  *   get:
  *     summary: Get a user by ID
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -181,6 +191,8 @@ router.get("/:id", authenticateUser, isAdmin, getUser);
  *   patch:
  *     summary: Update a user by ID
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -218,6 +230,8 @@ router.patch("/:id", authenticateUser, isAdmin, updateUser);
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
