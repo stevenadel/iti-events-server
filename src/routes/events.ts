@@ -4,6 +4,7 @@ import {
     createEvent,
     deleteEvent,
     eventAttendees,
+    eventsHappening,
     finishedEvents,
     getAllEvents,
     getEventById,
@@ -126,6 +127,29 @@ router.post("/", authenticateUser, isAdmin, validateCreateEventReq, createEvent)
  *         description: Internal server error
  */
 router.get("/", getAllEvents);
+
+/**
+ * @swagger
+ * /events/happening:
+ *   get:
+ *     summary: Get all currently happening events in ascending order
+ *     tags: [Events]
+ *     responses:
+ *       200:
+ *         description: A list of upcoming events in ascending order
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 events:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EventPopulated'
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/happening", eventsHappening);
 
 /**
  * @swagger
