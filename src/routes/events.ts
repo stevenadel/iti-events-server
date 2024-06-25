@@ -1,12 +1,12 @@
 import Router from "express";
 import {
+    allEvents,
     attendEvent,
     createEvent,
     deleteEvent,
     eventAttendees,
     eventsHappening,
     finishedEvents,
-    getAllEvents,
     getEventById,
     missEvent,
     upComingEvents,
@@ -109,8 +109,10 @@ router.post("/", authenticateUser, isAdmin, validateCreateEventReq, createEvent)
  * @swagger
  * /events:
  *   get:
- *     summary: Get all events
+ *     summary: Get all events active/inactive in ascending order
  *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of All events
@@ -126,7 +128,7 @@ router.post("/", authenticateUser, isAdmin, validateCreateEventReq, createEvent)
  *       500:
  *         description: Internal server error
  */
-router.get("/", getAllEvents);
+router.get("/", authenticateUser, isAdmin, allEvents);
 
 /**
  * @swagger
