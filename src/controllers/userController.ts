@@ -88,6 +88,10 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
 export async function createUser(req: Request, res: Response, next: NextFunction) {
     const userData = req.body;
 
+    if (userData.password.length < 8 || userData.password.length > 25) {
+        return next(new AppError("Password must be between 8 and 25 characters long.", 422));
+    }
+
     const [error, newUser] = await asyncWrapper(User.create(userData));
 
     if (error) {
