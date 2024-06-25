@@ -10,6 +10,7 @@ import { AuthenticatedRequest } from "../middlewares/authenticateUser";
 import {
     deleteEventAttendee,
     getActiveEndedBeforeDate,
+    getActiveEventsAtDate,
     getActiveEventsStartsAfterDate,
     getEvent,
     getEventAttendees,
@@ -61,6 +62,17 @@ export const getAllEvents = async (req: Request, res: Response, next: NextFuncti
     }
 
     res.json({ events });
+};
+
+export const eventsHappening = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const currDate = new Date();
+        const events = await getActiveEventsAtDate(currDate);
+
+        res.json({ events });
+    } catch (err) {
+        next(err);
+    }
 };
 
 export const upComingEvents = async (req: Request, res: Response, next: NextFunction) => {
