@@ -1,10 +1,17 @@
 import { Router } from "express";
 import {
-    createCategory, deleteCategoryById, getAllCategories, getCategoryById, getCategoryEvents, updateCategoryById,
+    createCategory,
+    deleteCategoryById,
+    getAllCategories,
+    getCategoryById,
+    getCategoryEvents,
+    updateCategoryById,
 } from "../controllers/eventCategoryController";
 import validateCreateEventCategoryReq from "../middlewares/validateCreateEventCategoryReq";
 import parseFormWithSingleImage from "../middlewares/parseFormWithSingleImage";
 import validateUpdateEventCategoryReq from "../middlewares/validateUpdateEventCategoryReq";
+import authenticateUser from "../middlewares/authenticateUser";
+import isAdmin from "../middlewares/isAdmin";
 
 const router = Router();
 /**
@@ -20,6 +27,8 @@ const router = Router();
  *   post:
  *     summary: Create new event category
  *     tags: [EventCategories]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -54,7 +63,7 @@ const router = Router();
  *               $ref: '#/components/schemas/ValidationError'
  */
 
-router.post("/", parseFormWithSingleImage(), validateCreateEventCategoryReq, createCategory);
+router.post("/", authenticateUser, isAdmin, parseFormWithSingleImage(), validateCreateEventCategoryReq, createCategory);
 
 /**
  * @swagger
@@ -177,6 +186,8 @@ router.get("/:id/events", getCategoryEvents);
  *   put:
  *     summary: Update a category by ID
  *     tags: [EventCategories]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -220,7 +231,7 @@ router.get("/:id/events", getCategoryEvents);
  *             schema:
  *               $ref: '#/components/schemas/NotFoundError'
  */
-router.put("/:id", parseFormWithSingleImage(), validateUpdateEventCategoryReq, updateCategoryById);
+router.put("/:id", authenticateUser, isAdmin, parseFormWithSingleImage(), validateUpdateEventCategoryReq, updateCategoryById);
 
 /**
  * @swagger
@@ -228,6 +239,8 @@ router.put("/:id", parseFormWithSingleImage(), validateUpdateEventCategoryReq, u
  *   delete:
  *     summary: Delete a category by ID
  *     tags: [EventCategories]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -251,6 +264,6 @@ router.put("/:id", parseFormWithSingleImage(), validateUpdateEventCategoryReq, u
  *             schema:
  *               $ref: '#/components/schemas/NotFoundError'
  */
-router.delete("/:id", deleteCategoryById);
+router.delete("/:id", authenticateUser, isAdmin, deleteCategoryById);
 
 export default router;

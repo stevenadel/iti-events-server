@@ -32,6 +32,8 @@ const router = Router();
  *   post:
  *     summary: Create a new event
  *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -100,7 +102,7 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  */
-router.post("/", validateCreateEventReq, createEvent);
+router.post("/", authenticateUser, isAdmin, validateCreateEventReq, createEvent);
 
 /**
  * @swagger
@@ -221,6 +223,8 @@ router.get("/:id", getEventById);
  *   put:
  *     summary: Update an existing event
  *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -303,7 +307,7 @@ router.get("/:id", getEventById);
  *         description: Internal server error
  */
 
-router.put("/:id", validateUpdateEventReq, updateEvent);
+router.put("/:id", authenticateUser, isAdmin, validateUpdateEventReq, updateEvent);
 
 /**
  * @swagger
@@ -311,6 +315,8 @@ router.put("/:id", validateUpdateEventReq, updateEvent);
  *   delete:
  *     summary: Delete an existing event
  *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -343,7 +349,7 @@ router.put("/:id", validateUpdateEventReq, updateEvent);
  *         description: Internal server error
  */
 
-router.delete("/:id", deleteEvent);
+router.delete("/:id", authenticateUser, isAdmin, deleteEvent);
 
 /**
  * @swagger
