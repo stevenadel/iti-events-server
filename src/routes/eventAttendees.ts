@@ -2,7 +2,11 @@ import { Router } from "express";
 import authenticateUser from "../middlewares/authenticateUser";
 import isAdmin from "../middlewares/isAdmin";
 import {
-    allAttendees, approveAttendee, attendeeById, rejectAttendee,
+    allAttendees,
+    approveAttendee,
+    attendeeById,
+    pendingAttendees,
+    rejectAttendee,
 } from "../controllers/attendeeController";
 
 const router = Router();
@@ -38,6 +42,31 @@ const router = Router();
  *         description: Internal server error
  */
 router.get("/", authenticateUser, isAdmin, allAttendees);
+
+/**
+ * @swagger
+ * /attendees/pending:
+ *   get:
+ *     summary: Get all pending attendees of all events [ADMINS ONLY]
+ *     tags: [Event Attendees]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Attendees returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 attendees:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EventAttendeePopulated'
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/pending", authenticateUser, isAdmin, pendingAttendees);
 
 /**
  * @swagger
