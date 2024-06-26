@@ -24,6 +24,7 @@ export async function getMe(req: AuthenticatedRequest, res:Response, next: NextF
 export async function updateMe(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const userId = req.user.id;
     const updateData = req.body;
+    delete updateData.emailVerified;
 
     if (req.user.role !== UserRole.Admin) {
         delete updateData.isActive;
