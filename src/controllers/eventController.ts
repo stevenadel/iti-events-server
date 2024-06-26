@@ -209,6 +209,7 @@ export const attendEvent = async (req: AuthenticatedRequest, res: Response, next
     try {
         const { eventId } = req.params;
         const { id: userId } = req.user;
+        const userAge = req.user.getAge();
 
         if (!isValidObjectId(eventId)) {
             next(new ValidationError("Invalid event id"));
@@ -229,11 +230,17 @@ export const attendEvent = async (req: AuthenticatedRequest, res: Response, next
             return;
         }
 
+        if (userAge < event.minAge || userAge > event.maxAge) {
+            next(new ValidationError(`Your age must be between ${event.minAge} and ${event.maxAge}`));
+            return;
+        }
+
         if (!event.isPaid) {
             const attendee = await registerUserInEvent(userId, eventId);
             res.status(201).json({ attendee });
             return;
         }
+
         let imageUrl: string | null = null;
         let cloudinaryPublicId : string | null = null;
 
