@@ -108,7 +108,7 @@ export const deleteAttendee = async (req: Request, res: Response, next: NextFunc
             return;
         }
 
-        res.status(204).send();
+        res.status(200).json({ attendee });
     } catch (err) {
         next(err);
     }
