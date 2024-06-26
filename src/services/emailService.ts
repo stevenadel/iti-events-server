@@ -40,7 +40,7 @@ export const sendResetPasswordEmail = async (userId: string, email: string) => {
         throw tokenError;
     }
 
-    const resetPasswordLink = `${process.env.BASE_URL}/auth/reset?token=${token}&id=${userId}`;
+    const resetPasswordLink = `${process.env.BASE_URL_FRONTEND}/reset?token=${token}&id=${userId}`;
 
     const emailSubject = "ITI Password Reset";
     const emailText = `You requested a password reset. Please reset your password by clicking on the following link: ${resetPasswordLink}`;
