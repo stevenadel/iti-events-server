@@ -31,12 +31,10 @@ function validateCreateEventReq(req: Request, res: Response, next: NextFunction)
                 "any.required": "category is a required",
             }),
         startDate: Joi.date()
-            .min("now")
             .iso()
             .required()
             .messages({
                 "date.base": "Start Date should be a valid date",
-                "date.min": "Start Date can't be less than now",
                 "date.format": "Start date should should be ISO 8601 format YYYY-MM-DD / YYYY-MM-DDT00:00:00",
                 "any.required": "Start Date is required",
             }),
