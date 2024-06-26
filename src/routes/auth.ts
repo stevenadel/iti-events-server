@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { login, register, refresh, verify } from "../controllers/authController";
+import {
+    login, register, refresh, verify, forgotPassword, resetPassword,
+} from "../controllers/authController";
 
 const router = Router();
 
@@ -196,5 +198,83 @@ router.post("/refresh", refresh);
  *         description: User not found
  */
 router.get("/verify", verify);
+
+/**
+ * @swagger
+ * /auth/forgot:
+ *   post:
+ *     summary: Initiate password reset
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: The email address to send the reset link to
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: Password reset email sent successfully
+ *       400:
+ *         description: Validation error or invalid email
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/forgot", forgotPassword);
+
+/**
+ * @swagger
+ * /auth/reset:
+ *   post:
+ *     summary: Reset user password with token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: The token received in the password reset email
+ *               id:
+ *                 type: string
+ *                 description: The user's ID
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 maxLength: 25
+ *                 description: The new password
+ *                 example: NewPassw0rd!
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Password reset success message
+ *                   example: Password reset successfully
+ *       400:
+ *         description: Validation error or invalid token
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/reset", resetPassword);
 
 export default router;
