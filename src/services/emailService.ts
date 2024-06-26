@@ -31,4 +31,28 @@ export const sendVerifyEmail = async (userId: string, email: string) => {
     console.log("Verification email sent successfully");
 };
 
-export default sendVerifyEmail;
+export const sendResetPasswordEmail = async (userId: string, email: string) => {
+    const token = generateToken();
+
+    const [tokenError, userToken] = await asyncWrapper(UserToken.create({ userId, token }));
+
+    if (tokenError) {
+        throw tokenError;
+    }
+
+    const resetPasswordLink = `${process.env.BASE_URL}/auth/reset?token=${token}&id=${userId}`;
+
+    const emailSubject = "ITI Password Reset";
+    const emailText = `You requested a password reset. Please reset your password by clicking on the following link: ${resetPasswordLink}`;
+
+    try {
+        await sendEmail(email, emailSubject, emailText);
+    } catch (sendError) {
+        if (userToken) {
+            await UserToken.deleteOne({ userId: userToken.userId, token: userToken.token });
+        }
+        throw sendError;
+    }
+
+    console.log("Password reset email sent successfully");
+};
