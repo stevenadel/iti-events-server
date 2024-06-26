@@ -97,16 +97,18 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
         return next(new AppError("Refresh token required.", 400));
     }
 
+    const verifyToken = (token: string, secret: string) => new Promise((resolve, reject) => {
+        jwt.verify(token, secret, (err, decoded) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(decoded);
+            }
+        });
+    });
+
     const [error, decoded] = await asyncWrapper(
-        new Promise((resolve, reject) => {
-            jwt.verify(refreshToken, JWT_REFRESH_SECRET!, (err: VerifyErrors | null, decoded: any) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(decoded);
-                }
-            });
-        }),
+        verifyToken(refreshToken, JWT_REFRESH_SECRET!),
     );
 
     if (error) {
