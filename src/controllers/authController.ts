@@ -1,37 +1,16 @@
 import bcrypt from "bcrypt";
 import jwt, { VerifyErrors } from "jsonwebtoken";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../utils/asyncWrapper";
-import sendVerifyEmail from "../services/emailService";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
 import NotFoundError from "../errors/NotFoundError";
 import User from "../models/User";
 import UserToken from "../models/UserToken";
+import { sendVerifyEmail } from "../services/emailService";
 import { UserAuth } from "../types/User";
-
-dotenv.config();
-
-const {
-    JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, JWT_ACCESS_EXPIRATION, JWT_REFRESH_EXPIRATION,
-} = process.env;
-
-if (!JWT_ACCESS_SECRET || !JWT_REFRESH_SECRET) {
-    throw new Error("JWT secrets are not defined in environment variables.");
-}
-
-function getTokenPayload(user: UserAuth) {
-    return {
-        id: user.id,
-        role: user.role,
-    };
-}
-
-const generateAccessToken = (user: UserAuth) => jwt.sign(getTokenPayload(user), JWT_ACCESS_SECRET, { expiresIn: JWT_ACCESS_EXPIRATION });
-
-const generateRefreshToken = (user: UserAuth) => jwt.sign(getTokenPayload(user), JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRATION });
+import { generateAccessToken, generateRefreshToken, JWT_REFRESH_SECRET } from "../services/authService";
 
 export async function login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
