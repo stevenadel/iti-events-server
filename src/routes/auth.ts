@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-    login, register, refresh, verify, forgotPassword, resetPassword,
+    login, loginMobile, register, refresh, verify, forgotPassword, resetPassword,
 } from "../controllers/authController";
 
 const router = Router();
@@ -55,6 +55,52 @@ const router = Router();
  *         description: Invalid credentials
  */
 router.post("/login", login);
+
+/**
+ * @swagger
+ * /auth/login/mobile:
+ *   post:
+ *     summary: Login a user via mobile
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: The user's email
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 description: The user's password
+ *                 example: Passw0rd!
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                   description: The access token
+ *                   example: "some-jwt-token"
+ *                 refreshToken:
+ *                   type: string
+ *                   description: The refresh token
+ *                   example: "some-refresh-token"
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Invalid credentials
+ *       403:
+ *         description: Forbidden - User must have an active event with a valid end date
+ */
+router.post("/login/mobile", loginMobile);
 
 /**
  * @swagger
