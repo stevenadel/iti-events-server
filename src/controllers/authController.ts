@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import jwt, { VerifyErrors } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../utils/asyncWrapper";
@@ -8,8 +8,8 @@ import DataValidationError from "../errors/DataValidationError";
 import NotFoundError from "../errors/NotFoundError";
 import User from "../models/User";
 import UserToken from "../models/UserToken";
-import { sendVerifyEmail } from "../services/emailService";
 import { UserAuth } from "../types/User";
+import { sendVerifyEmail, sendResetPasswordEmail } from "../services/emailService";
 import { generateAccessToken, generateRefreshToken, JWT_REFRESH_SECRET } from "../services/authService";
 
 export async function login(req: Request, res: Response, next: NextFunction) {
@@ -159,3 +159,30 @@ export async function verify(req: Request, res: Response, next: NextFunction) {
 
     res.json({ message: "Email verified successfully." });
 }
+
+export async function forgotPassword(req: Request, res: Response, next: NextFunction) {
+    const { email } = req.body;
+
+    if (!email) {
+        return next(new AppError("Email is required.", 400));
+    }
+
+    const [error, user] = await asyncWrapper(User.findOne({ email }));
+
+    if (error) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    if (!user) {
+        return next(new NotFoundError("No user found with that email address."));
+    }
+
+    try {
+        await sendResetPasswordEmail(user.id, user.email);
+    } catch (emailError) {
+        return next(emailError);
+    }
+
+    res.json({ message: "Password reset email sent successfully." });
+}
+
