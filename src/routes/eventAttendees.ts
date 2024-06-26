@@ -5,6 +5,7 @@ import {
     allAttendees,
     approveAttendee,
     attendeeById,
+    deleteAttendee,
     pendingAttendees,
     rejectAttendee,
 } from "../controllers/attendeeController";
@@ -212,4 +213,44 @@ router.post("/:attendeeId/approve", authenticateUser, isAdmin, approveAttendee);
  */
 router.post("/:attendeeId/reject", authenticateUser, isAdmin, rejectAttendee);
 
+/**
+ * @swagger
+ * /attendees/{attendeeId}:
+ *   delete:
+ *     summary: Delete attendee [ADMINS ONLY]
+ *     tags: [Event Attendees]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: attendeeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Attendee ID
+ *     responses:
+ *       204:
+ *         description: Successfully deleted attendee
+ *       400:
+ *         description: Invalid attendee id format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "Invalid attendee id format"
+ *               errors: {}
+ *       404:
+ *         description: Attendee not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NotFoundError'
+ *             example:
+ *               message: "Attendee not found"
+ *               errors: {}
+ *       500:
+ *         description: Internal server error
+ */
+router.delete("/:attendeeId", authenticateUser, isAdmin, deleteAttendee);
 export default router;

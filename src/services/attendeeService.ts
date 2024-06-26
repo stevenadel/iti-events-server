@@ -14,3 +14,8 @@ export const updateAttendeeApprovalStatus = async (attendeeId: string, isApprove
     const attendee = await EventAttendee.findByIdAndUpdate(attendeeId, { isApproved }, { new: true }).populate("user").populate("event");
     return attendee;
 };
+
+export const deleteAttendeeById = async (attendeeId: string) => {
+    const attendee = await EventAttendee.findByIdAndDelete(attendeeId);
+    return attendee;
+};
