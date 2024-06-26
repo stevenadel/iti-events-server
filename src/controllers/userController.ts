@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../utils/asyncWrapper";
+import EventAttendee from "../models/EventAttendee";
 import User, { UserRole } from "../models/User";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
@@ -18,7 +19,20 @@ export async function getAllUsers(req: Request, res: Response, next: NextFunctio
 }
 
 export async function getMe(req: AuthenticatedRequest, res:Response, next: NextFunction) {
-    res.json({ user: req.user });
+    const { user } = req;
+    const [attendeeError, eventAttendees] = await asyncWrapper(EventAttendee.find({ userId: user.id }).populate("event").exec());
+
+    if (attendeeError) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    const events = eventAttendees.map((attendee: any) => attendee.event);
+    res.json({
+        user: {
+            ...user.toObject(),
+            events,
+        },
+    });
 }
 
 export async function updateMe(req: AuthenticatedRequest, res: Response, next: NextFunction) {

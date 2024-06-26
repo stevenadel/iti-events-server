@@ -92,6 +92,15 @@ userSchema.set("toJSON", {
     },
 });
 
+userSchema.set("toObject", {
+    transform(doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        delete ret.password;
+    },
+});
+
 userSchema.methods.verifyPassword = async function (this: UserDocument, plainPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, this.password);
 };
