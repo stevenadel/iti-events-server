@@ -186,3 +186,39 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
     res.json({ message: "Password reset email sent successfully." });
 }
 
+export async function resetPassword(req: Request, res: Response, next: NextFunction) {
+    const { token, id } = req.query;
+    const { newPassword } = req.body;
+
+    if (!token || !id || !newPassword) {
+        return next(new AppError("Invalid request.", 400));
+    }
+
+    if (newPassword.length < 8 || newPassword.length > 25) {
+        return next(new AppError("Password must be between 8 and 25 characters long.", 422));
+    }
+
+    const [error, userToken] = await asyncWrapper(UserToken.findOne({ userId: id, token }));
+
+    if (error) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    if (!userToken) {
+        return next(new AppError("Invalid or expired token.", 400));
+    }
+
+    const [userError, user] = await asyncWrapper(User.findByIdAndUpdate(id, { password: newPassword }, { new: true }));
+
+    if (userError) {
+        return next(new AppError("Database error. Please try again later.", 500));
+    }
+
+    if (!user) {
+        return next(new NotFoundError("User not found."));
+    }
+
+    await UserToken.deleteOne({ userId: id, token });
+
+    res.json({ message: "Password reset successfully." });
+}
