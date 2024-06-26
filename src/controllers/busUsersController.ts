@@ -22,6 +22,16 @@ export async function subscribe(req: AuthenticatedRequest, res: Response, next: 
         return next(new AppError("Database error. Please try again later."));
     }
 
+    const [busLineErr, busLine] = await asyncWrapper(BusLine.findById(busLineId));
+    
+    if (busLineErr || !busLine) {
+        return next(new AppError("Bus line not found. Please try again later."));
+    }
+
+    if (busLine.remainingSeats == null || busLine.remainingSeats <= 0) {
+        return next(new AppError("No remaining seats available."));
+    }
+
     const [busLineError] = await asyncWrapper(
         BusLine.findByIdAndUpdate(
             busLineId,
