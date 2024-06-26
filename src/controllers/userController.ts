@@ -116,6 +116,57 @@ export async function createUser(req: Request, res: Response, next: NextFunction
     res.status(201).json(newUser);
 }
 
+export async function createUsers(req: Request, res: Response, next: NextFunction) {
+    const usersData = req.body;
+
+    const results: string[] = [];
+    const errors: any[] = [];
+
+    if (!Array.isArray(usersData)) {
+        next(new AppError("Must provide users in an array.", 400));
+    }
+
+    const createUserPromises = usersData.map(async (userData: { password: string; }) => {
+        if (!userData.password || userData.password.length < 8 || userData.password.length > 25) {
+            errors.push({ user: userData, error: "Password must be between 8 and 25 characters long." });
+            return;
+        }
+
+        try {
+            const newUser: any = await User.create(userData);
+            results.push(newUser);
+        } catch (error) {
+            if (error instanceof mongoose.Error.ValidationError) {
+                const requiredError = Object.values(error.errors).find((err) => err.kind === "required");
+
+                if (requiredError) {
+                    errors.push({ user: userData, error: "Missing required fields." });
+                } else {
+                    errors.push({ user: userData, error: "Data validation error." });
+                }
+            } else if ((error as any).code === 11000) {
+                errors.push({ user: userData, error: "Email already exists. Please use a different email." });
+            } else {
+                errors.push({ user: userData, error: "Database error. Please try again later." });
+            }
+
+            console.error(`Error creating user: ${JSON.stringify(userData)}, Error: ${error}`);
+        }
+    });
+
+    await Promise.all(createUserPromises);
+
+    if (errors.length) {
+        res.status(207).json({
+            message: "Some users could not be created.",
+            errors,
+            createdUsers: results,
+        });
+    } else {
+        res.status(201).json(results);
+    }
+}
+
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     const updateData = req.body;
