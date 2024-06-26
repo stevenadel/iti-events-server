@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { isValidObjectId } from "mongoose";
+import moment from "moment-timezone";
 import asyncWrapper from "../utils/asyncWrapper";
 import Event from "../models/Event";
 import EventCategory from "../models/EventCategory";
@@ -83,6 +84,8 @@ export const allActiveEvents = async (req: Request, res: Response, next: NextFun
 export const eventsHappening = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const currDate = new Date();
+        currDate.setHours(currDate.getHours() + 3); // currently egypt is on GMT+3 (may be due to summer time)
+
         const events = await getActiveEventsAtDate(currDate);
 
         res.json({ events });
