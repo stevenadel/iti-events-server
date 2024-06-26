@@ -2,7 +2,7 @@ import { Router } from "express";
 import authenticateUser from "../middlewares/authenticateUser";
 import isAdmin from "../middlewares/isAdmin";
 import {
-    getAllUsers, getMe, updateMe, getUser, createUser, deleteUser, updateUser,
+    getAllUsers, getMe, updateMe, getUser, createUser, createUsers, deleteUser, updateUser,
 } from "../controllers/userController";
 
 const router = Router();
@@ -69,6 +69,81 @@ router.get("/", authenticateUser, isAdmin, getAllUsers);
  *         description: Internal server error
  */
 router.post("/", authenticateUser, isAdmin, createUser);
+
+/**
+ * @swagger
+ * /users/import:
+ *   post:
+ *     summary: Import users in bulk
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 firstName:
+ *                   type: string
+ *                   description: The first name of the user
+ *                   example: John
+ *                 lastName:
+ *                   type: string
+ *                   description: The last name of the user
+ *                   example: Doe
+ *                 email:
+ *                   type: string
+ *                   format: email
+ *                   description: The email address of the user
+ *                   example: john.doe@example.com
+ *                 password:
+ *                   type: string
+ *                   description: The password of the user
+ *                   minLength: 8
+ *                   maxLength: 25
+ *                   example: Passw0rd!
+ *     responses:
+ *       201:
+ *         description: Users imported successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       207:
+ *         description: Some users could not be imported
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Some users could not be imported.
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       user:
+ *                         type: object
+ *                         example: { firstName: "John", lastName: "Doe", email: "john.doe@example.com" }
+ *                       error:
+ *                         type: string
+ *                         example: Password must be between 8 and 25 characters long.
+ *                 createdUsers:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid request body format
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/import", authenticateUser, isAdmin, createUsers);
 
 /**
  * @swagger
