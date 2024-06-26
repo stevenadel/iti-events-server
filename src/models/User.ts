@@ -96,6 +96,13 @@ userSchema.methods.verifyPassword = async function (this: UserDocument, plainPas
     return bcrypt.compare(plainPassword, this.password);
 };
 
+userSchema.methods.getAge = function (this: UserDocument): number {
+    const birthdate = new Date(this.birthdate);
+    const ageDiffMs = Date.now() - birthdate.getTime();
+    const ageDate = new Date(ageDiffMs);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+};
+
 userSchema.pre<UserDocument>("save", async function (next) {
     if (!this.isModified("password")) {
         return next();
