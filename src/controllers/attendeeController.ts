@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { isValidObjectId } from "mongoose";
-import { getAllAttendees, getAttendeeById, updateAttendeeApprovalStatus } from "../services/attendeeService";
+import {
+    deleteAttendeeById,
+    getAllAttendees,
+    getAttendeeById,
+    updateAttendeeApprovalStatus,
+} from "../services/attendeeService";
 import ValidationError from "../errors/ValidationError";
 import NotFoundError from "../errors/NotFoundError";
 
@@ -83,6 +88,27 @@ export const rejectAttendee = async (req: Request, res: Response, next: NextFunc
         }
 
         res.json({ attendee });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteAttendee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { attendeeId } = req.params;
+        if (!isValidObjectId(attendeeId)) {
+            next(new ValidationError("Invalid attendee id format"));
+            return;
+        }
+
+        const attendee = await deleteAttendeeById(attendeeId);
+
+        if (!attendee) {
+            next(new NotFoundError("Attendee does not exist"));
+            return;
+        }
+
+        res.status(204).send();
     } catch (err) {
         next(err);
     }
