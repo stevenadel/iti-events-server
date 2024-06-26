@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { isValidObjectId } from "mongoose";
-import moment from "moment-timezone";
 import asyncWrapper from "../utils/asyncWrapper";
 import Event from "../models/Event";
 import EventCategory from "../models/EventCategory";
