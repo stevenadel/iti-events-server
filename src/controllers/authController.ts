@@ -29,6 +29,10 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         return next(new AppError("Invalid email or password.", 401));
     }
 
+    if (!user.emailVerified) {
+        return next(new AppError("Must verify email before loggin in.", 403));
+    }
+
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
