@@ -11,7 +11,7 @@ export const sendVerifyEmail = async (userId: string, email: string) => {
     const [tokenError, userToken] = await asyncWrapper(UserToken.create({ userId, token }));
 
     if (tokenError) {
-        return tokenError;
+        throw tokenError;
     }
 
     const verificationLink = `${process.env.BASE_URL}/auth/verify?token=${token}&id=${userId}`;
