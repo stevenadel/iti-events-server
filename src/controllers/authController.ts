@@ -6,6 +6,7 @@ import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
 import NotFoundError from "../errors/NotFoundError";
+import EventAttendee from "../models/EventAttendee";
 import User from "../models/User";
 import UserToken from "../models/UserToken";
 import { UserAuth } from "../types/User";
@@ -30,13 +31,64 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     }
 
     if (!user.emailVerified) {
-        return next(new AppError("Must verify email before loggin in.", 403));
+        return next(new AppError("Must verify email before logging in.", 403));
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
         return next(new AppError("Invalid email or password.", 401));
+    }
+
+    const accessToken = generateAccessToken(user as UserAuth);
+    const refreshToken = generateRefreshToken(user as UserAuth);
+
+    res.json({
+        accessToken,
+        refreshToken,
+    });
+}
+
+export async function loginMobile(req: Request, res: Response, next: NextFunction) {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return next(new AppError("Must provide username and password for login.", 400));
+    }
+
+    const [error, user] = await asyncWrapper(User.findOne({ email }));
+
+    if (error) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    if (!user) {
+        return next(new AppError("Invalid email or password.", 401));
+    }
+
+    if (!user.emailVerified) {
+        return next(new AppError("Must verify email before logging in.", 403));
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+        return next(new AppError("Invalid email or password.", 401));
+    }
+
+    const [attendeeError, eventAttendees] = await asyncWrapper(EventAttendee.find({ userId: user.id }).populate("event"));
+
+    if (attendeeError) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    const today = new Date();
+    const hasValidEvent = eventAttendees.some(
+        (attendee: any) => attendee.event.isActive && new Date(attendee.event.endDate) >= today
+    );
+
+    if (!hasValidEvent) {
+        return next(new AppError("User must have an active event with a valid end date to log in.", 403));
     }
 
     const accessToken = generateAccessToken(user as UserAuth);
