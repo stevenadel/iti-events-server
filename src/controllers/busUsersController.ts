@@ -3,6 +3,7 @@ import BusUser from "../models/UserBus";
 import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
 import { AuthenticatedRequest } from "../middlewares/authenticateUser";
+import BusLine from "../models/BusLine";
 
 
 export async function subscribe(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -18,6 +19,18 @@ export async function subscribe(req: AuthenticatedRequest, res: Response, next: 
     );
 
     if (error) {
+        return next(new AppError("Database error. Please try again later."));
+    }
+
+    const [busLineError] = await asyncWrapper(
+        BusLine.findByIdAndUpdate(
+            busLineId,
+            { $inc: { remainingSeats: -1 } },
+            { new: true }
+        )
+    );
+
+    if (busLineError) {
         return next(new AppError("Database error. Please try again later."));
     }
 
@@ -38,6 +51,18 @@ export async function unsubscribe(req: AuthenticatedRequest, res: Response, next
 
     if (!result) {
         return next(new AppError("Subscription not found.", 404));
+    }
+
+    const [busLineError] = await asyncWrapper(
+        BusLine.findByIdAndUpdate(
+            busLineId,
+            { $inc: { remainingSeats: 1 } },
+            { new: true }
+        )
+    );
+
+    if (busLineError) {
+        return next(new AppError("Database error. Please try again later."));
     }
 
     res.status(200).json({ message: "Successfully unsubscribed." });

@@ -2,11 +2,29 @@ import { NextFunction, Request, Response } from "express";
 import BusLine from "../models/BusLine";
 import asyncWrapper from "../utils/asyncWrapper";
 import AppError from "../errors/AppError";
+import { uploadImageToCloud } from "../utils/cloudinary";
 
 export async function createBusLine(req: Request, res: Response, next: NextFunction) {
     const {
-        name, isActive, capacity, busPoints, departureTime, arrivalTime,
+        name, isActive, capacity, busPoints, departureTime, arrivalTime, driverID
     } = req.body;
+
+    let imageUrl: string | null = null;
+    let cloudinaryPublicId: string | null = null;
+
+    if (req.file?.buffer) {
+        const [uploadErr, result] = await asyncWrapper(uploadImageToCloud(req.file?.buffer));
+        
+        if (uploadErr) {
+            next(new AppError(`Couldn't upload image cause of : ${uploadErr.message}`));
+            return;
+        }
+
+        if (result) {
+            imageUrl = result.secure_url;
+            cloudinaryPublicId = result.public_id;
+        }
+    }
 
     const busLineData = {
         name,
@@ -15,9 +33,14 @@ export async function createBusLine(req: Request, res: Response, next: NextFunct
         busPoints,
         departureTime,
         arrivalTime,
+        driverID,
+        imageUrl,
+        cloudinaryPublicId
     };
 
     const [error, newBusLine] = await asyncWrapper(BusLine.create(busLineData));
+
+    console.log(error)
 
     if (error) {
         return next(new AppError("Database error. Please try again later."));
