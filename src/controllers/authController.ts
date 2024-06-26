@@ -84,7 +84,7 @@ export async function loginMobile(req: Request, res: Response, next: NextFunctio
 
     const today = new Date();
     const hasValidEvent = eventAttendees.some(
-        (attendee: any) => attendee.event.isActive && new Date(attendee.event.endDate) >= today
+        (attendee: any) => attendee?.event?.isActive && new Date(attendee?.event?.endDate) >= today
     );
 
     if (!hasValidEvent) {
