@@ -187,11 +187,10 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
 }
 
 export async function resetPassword(req: Request, res: Response, next: NextFunction) {
-    const { token, id } = req.query;
-    const { newPassword } = req.body;
+    const { id, token, newPassword } = req.body;
 
-    if (!token || !id || !newPassword) {
-        return next(new AppError("Invalid request.", 400));
+    if (!id || !token || !newPassword) {
+        return next(new AppError("Invalid request. Please provide id, token, and newPassword in the request body.", 400));
     }
 
     if (newPassword.length < 8 || newPassword.length > 25) {
@@ -211,7 +210,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     const [userError, user] = await asyncWrapper(User.findByIdAndUpdate(id, { password: newPassword }, { new: true }));
 
     if (userError) {
-        return next(new AppError("Database error. Please try again later.", 500));
+        return next(new AppError("Database error. Please try again later."));
     }
 
     if (!user) {
