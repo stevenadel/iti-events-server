@@ -21,6 +21,9 @@ const BusLineSchema = new Schema({
         required: true,
         min: 5,
     },
+    remainingSeats:{
+        type: Number
+    },
     departureTime: {
         type: Date,
         required: true,
@@ -48,6 +51,21 @@ const BusLineSchema = new Schema({
             required: true,
         },
     }],
+    imageUrl: {
+        type: String,
+        default: null,
+    },
+    cloudinaryPublicId: {
+        type: String,
+        default: null,
+    },
+});
+
+BusLineSchema.pre('save', function(next) {
+    if (this.isNew && this.remainingSeats === undefined) {
+        this.remainingSeats = this.capacity;
+    }
+    next();
 });
 
 const BusLine = mongoose.model("BusLine", BusLineSchema);
