@@ -83,30 +83,50 @@ export async function updateBusLine(req: Request, res: Response, next: NextFunct
         arrivalTime,
     } = req.body;
 
+    let imageUrl: string | null = null;
+    let cloudinaryPublicId: string | null = null;
+
+    if (req.file?.buffer) {
+        const [uploadErr, result] = await asyncWrapper(uploadImageToCloud(req.file.buffer));
+        
+        if (uploadErr) {
+            return next(new AppError(`Couldn't upload image because of: ${uploadErr.message}`, 500));
+        }
+
+        if (result) {
+            imageUrl = result.secure_url;
+            cloudinaryPublicId = result.public_id;
+        }
+    }
+
+    const updateData: any = {
+        name,
+        isActive,
+        capacity,
+        driverID,
+        busPoints,
+        departureTime,
+        arrivalTime,
+    };
+
+    if (imageUrl && cloudinaryPublicId) {
+        updateData.imageUrl = imageUrl;
+        updateData.cloudinaryPublicId = cloudinaryPublicId;
+    }
+
     const [error, updatedBusLine] = await asyncWrapper(BusLine.findByIdAndUpdate(
         id,
-        {
-            name,
-            isActive,
-            capacity,
-            driverID,
-            busPoints,
-            departureTime,
-            arrivalTime,
-        },
+        updateData,
         { new: true },
     ));
 
     if (error) {
-        return next(new AppError("Database error. Please try again later."));
+        return next(new AppError("Database error. Please try again later.", 500));
     }
-
-    // if(!updatedBusLine[0]){
-    //     return next(new AppError("Bus Line not found", 404));
-    // }
 
     res.status(200).json(updatedBusLine);
 }
+
 
 export async function deleteBusLine(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
