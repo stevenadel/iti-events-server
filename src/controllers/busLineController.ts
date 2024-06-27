@@ -16,8 +16,7 @@ export async function createBusLine(req: Request, res: Response, next: NextFunct
         const [uploadErr, result] = await asyncWrapper(uploadImageToCloud(req.file?.buffer));
         
         if (uploadErr) {
-            next(new AppError(`Couldn't upload image cause of : ${uploadErr.message}`));
-            return;
+            console.log(`Could not upload image cause of : ${uploadErr}`);
         }
 
         if (result) {
