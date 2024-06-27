@@ -7,7 +7,7 @@ import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
 import NotFoundError from "../errors/NotFoundError";
 import EventAttendee from "../models/EventAttendee";
-import User from "../models/User";
+import User, { UserRole } from "../models/User";
 import UserToken from "../models/UserToken";
 import { UserAuth } from "../types/User";
 import { sendVerifyEmail, sendResetPasswordEmail } from "../services/emailService";
@@ -76,19 +76,21 @@ export async function loginMobile(req: Request, res: Response, next: NextFunctio
         return next(new AppError("Invalid email or password.", 401));
     }
 
-    const [attendeeError, eventAttendees] = await asyncWrapper(EventAttendee.find({ userId: user.id }).populate("event"));
+    if (user.role === UserRole.Guest) {
+        const [attendeeError, eventAttendees] = await asyncWrapper(EventAttendee.find({ userId: user.id }).populate("event"));
 
-    if (attendeeError) {
-        return next(new AppError("Database error. Please try again later."));
-    }
+        if (attendeeError) {
+            return next(new AppError("Database error. Please try again later."));
+        }
 
-    const today = new Date();
-    const hasValidEvent = eventAttendees.some(
-        (attendee: any) => attendee?.event?.isActive && new Date(attendee?.event?.endDate) >= today
-    );
+        const today = new Date();
+        const hasValidEvent = eventAttendees.some(
+            (attendee: any) => attendee?.event?.isActive && new Date(attendee?.event?.endDate) >= today
+        );
 
-    if (!hasValidEvent) {
-        return next(new AppError("User must have an active event with a valid end date to log in.", 403));
+        if (!hasValidEvent) {
+            return next(new AppError("User must have an active event with a valid end date to log in.", 403));
+        }
     }
 
     const accessToken = generateAccessToken(user as UserAuth);
