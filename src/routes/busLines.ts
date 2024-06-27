@@ -10,7 +10,7 @@ router.get("/",authenticateUser, getBusLines);
 router.post("/", authenticateUser, isAdmin, parseFormWithSingleImage(),  createBusLine);
 
 router.get("/:id",authenticateUser,  getBusLineById);
-router.put("/:id", authenticateUser, isAdmin,  updateBusLine);
+router.put("/:id", authenticateUser, isAdmin, parseFormWithSingleImage(),  updateBusLine);
 router.delete("/:id", authenticateUser, isAdmin, deleteBusLine);
 
 
