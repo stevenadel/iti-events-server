@@ -7,6 +7,7 @@ import AppError from "../errors/AppError";
 import DataValidationError from "../errors/DataValidationError";
 import NotFoundError from "../errors/NotFoundError";
 import { AuthenticatedRequest } from "../middlewares/authenticateUser";
+import { sendVerifyEmail } from "../services/emailService";
 
 export async function getAllUsers(req: Request, res: Response, next: NextFunction) {
     const [error, users] = await asyncWrapper(User.find());
@@ -127,6 +128,13 @@ export async function createUser(req: Request, res: Response, next: NextFunction
         return next(new AppError("Database error. Please try again later."));
     }
 
+    try {
+        await sendVerifyEmail(newUser.id, newUser.email);
+    } catch (emailError) {
+        await User.deleteOne({ _id: newUser.id });
+        return next(emailError);
+    }
+    
     res.status(201).json(newUser);
 }
 
@@ -149,6 +157,7 @@ export async function createUsers(req: Request, res: Response, next: NextFunctio
         try {
             const newUser: any = await User.create(userData);
             results.push(newUser);
+            await sendVerifyEmail(newUser.id, newUser.email);
         } catch (error) {
             if (error instanceof mongoose.Error.ValidationError) {
                 const requiredError = Object.values(error.errors).find((err) => err.kind === "required");
@@ -161,7 +170,8 @@ export async function createUsers(req: Request, res: Response, next: NextFunctio
             } else if ((error as any).code === 11000) {
                 errors.push({ user: userData, error: "Email already exists. Please use a different email." });
             } else {
-                errors.push({ user: userData, error: "Database error. Please try again later." });
+                errors.push({ user: userData, error: "An error occurred. Please try again later." });
+                await User.deleteOne({ _id: newUser.id });
             }
 
             console.error(`Error creating user: ${JSON.stringify(userData)}, Error: ${error}`);
