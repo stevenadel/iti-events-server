@@ -14,7 +14,7 @@ export const sendVerifyEmail = async (userId: string, email: string) => {
         throw tokenError;
     }
 
-    const verificationLink = `${process.env.BASE_URL}/auth/verify?token=${token}&id=${userId}`;
+    const verificationLink = `${process.env.BASE_URL_FRONTEND}/verify?token=${token}&id=${userId}`;
 
     const emailSubject = "ITI Email Verification";
     const emailText = `Welcome to ITI! Please verify your email by clicking on the following link: ${verificationLink}`;
