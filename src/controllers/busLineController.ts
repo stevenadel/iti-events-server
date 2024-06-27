@@ -35,6 +35,7 @@ export async function getBusLines(req: Request, res: Response, next: NextFunctio
     const [error, busLines] = await asyncWrapper(BusLine.find().populate("driverID"));
 
     if (error) {
+        console.log("line ")
         return next(new AppError("Database error. Please try again later."));
     }
 
@@ -47,6 +48,7 @@ export async function getBusLineById(req: Request, res: Response, next: NextFunc
     const [error, busLine] = await asyncWrapper(BusLine.findById(id).populate("driverID"));
 
     if (error) {
+        
         return next(new AppError("Database error. Please try again later."));
     }
 
@@ -80,6 +82,7 @@ export async function updateBusLine(req: Request, res: Response, next: NextFunct
     ));
 
     if (error) {
+        
         return next(new AppError("Database error. Please try again later."));
     }
 
@@ -96,6 +99,7 @@ export async function deleteBusLine(req: Request, res: Response, next: NextFunct
     const [error, deletedRows] = await asyncWrapper(BusLine.findByIdAndDelete(id));
 
     if (error) {
+
         return next(new AppError("Database error. Please try again later."));
     }
 

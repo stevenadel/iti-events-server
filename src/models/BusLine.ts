@@ -25,11 +25,11 @@ const BusLineSchema = new Schema({
         type: Number
     },
     departureTime: {
-        type: Date,
+        type: String,
         required: true,
     },
     arrivalTime: {
-        type: Date,
+        type: String,
         required: true,
     },
     busPoints: [{
